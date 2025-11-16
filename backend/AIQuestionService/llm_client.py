@@ -140,10 +140,10 @@ def generate_llm_question(learning_goal: str):
 # -----------------------------------------------------
 def fallback_question():
     return {
-        "question": "Fallback question: Which option best describes the main concept?",
-        "A": "Concept A",
-        "B": "Concept B",
-        "C": "Concept C",
-        "D": "Concept D",
-        "correct_option": "A"
+        "question": "In chemistry, which particle is responsible for determining the element’s identity?",
+        "A": "Neutron",
+        "B": "Electron",
+        "C": "Proton",
+        "D": "Nucleus",
+        "correct_option": "C"
     }
