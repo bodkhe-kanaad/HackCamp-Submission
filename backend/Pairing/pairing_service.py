@@ -216,21 +216,21 @@ def get_pairmate_details(user_id):
 
     pair_id = row[0]
 
-    # 2. Get both users in the pair
+    # 2. Get both users in the pair + ai_mode
     cur.execute(
         'SELECT user1, user2, ai_mode FROM "Pair" WHERE pair_id = %s;',
         (pair_id,)
     )
     pair_row = cur.fetchone()
-    user1_id, user2_id, ai_mode = pair_row
 
     if not pair_row:
         cur.close()
         conn.close()
         return None
 
-    user1_id, user2_id = pair_row
+    user1_id, user2_id, ai_mode = pair_row   # FIXED — proper unpack
 
+    # Determine partner
     partner_id = user2_id if user1_id == user_id else user1_id
 
     # 3. Fetch your profile
@@ -250,7 +250,7 @@ def get_pairmate_details(user_id):
     cur.close()
     conn.close()
 
-    # Convert to dicts for similarity function
+    # Convert to dicts for similarity
     user_self = {
         "user_id": u1[0],
         "username": u1[1],
@@ -265,10 +265,8 @@ def get_pairmate_details(user_id):
         "courses": u2[3] or []
     }
 
-    # 5. Compute similarity
     similarity = compute_similarity(user_self, user_partner)
 
-    # 6. Return data for frontend
     return {
         "pair_id": pair_id,
         "partner": user_partner,
