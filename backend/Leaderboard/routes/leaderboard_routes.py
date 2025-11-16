@@ -12,3 +12,11 @@ def leaderboard_route():
 
     board = get_leaderboard()
     return jsonify(board)
+
+@leaderboard_bp.route("/streak/<int:user_id>")
+def get_user_streak_route(user_id):
+    streak = get_user_streak(user_id)
+    if streak is not None:
+        return jsonify(streak)
+    else:
+        return jsonify({"error": "User not found"}), 404

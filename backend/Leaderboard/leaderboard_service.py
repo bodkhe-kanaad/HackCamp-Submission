@@ -79,3 +79,26 @@ def get_leaderboard():
         })
 
     return leaderboard
+
+def get_user_streak(user_id):
+    conn = get_connection()
+    cur = conn.cursor()
+
+    query = """
+        SELECT streak
+        FROM "Pair"
+        WHERE (user1 = %s OR user2 = %s)
+        LIMIT 1;
+    """
+    cur.execute(query, (user_id, user_id))
+
+    row = cur.fetchone()
+    if row:
+        streak = {"streak": row[0]}
+    else:
+        streak = None
+
+    cur.close()
+    conn.close()
+
+    return streak
