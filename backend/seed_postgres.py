@@ -41,7 +41,8 @@ def create_database_and_tables():
                 streak INTEGER DEFAULT 0,
                 question_id INTEGER DEFAULT NULL,
                 user1_answered BOOLEAN DEFAULT FALSE,
-                user2_answered BOOLEAN DEFAULT FALSE
+                user2_answered BOOLEAN DEFAULT FALSE,
+                ai_mode BOOLEAN DEFAULT FALSE
             );
         """)
         
@@ -66,7 +67,8 @@ def create_database_and_tables():
                 B TEXT NOT NULL,
                 C TEXT NOT NULL,
                 D TEXT NOT NULL,
-                correct_option VARCHAR(1) NOT NULL CHECK (correct_option IN ('A', 'B', 'C', 'D'))
+                correct_option VARCHAR(1) NOT NULL CHECK (correct_option IN ('A', 'B', 'C', 'D')),
+                source_type VARCHAR(20) DEFAULT 'leetcode'
             );
         """)
         
