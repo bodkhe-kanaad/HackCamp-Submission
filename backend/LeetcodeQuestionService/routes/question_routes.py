@@ -1,20 +1,3 @@
-from flask import Blueprint, jsonify, request
-from backend.db import get_connection
-
-# LeetCode question services
-from backend.LeetcodeQuestionService.question_service import (
-    get_leetcode_question_for_user,
-    check_leetcode_answer
-)
-
-# AI question services
-from backend.AIQuestionService.ai_question_service import (
-    get_ai_question_for_user,
-    check_ai_answer,
-    generate_ai_question_for_pair
-)
-
-question_bp = Blueprint("question_bp", __name__)
 
 from flask import Blueprint, jsonify, request
 from backend.db import get_connection
@@ -28,7 +11,6 @@ from backend.AIQuestionService.ai_question_service import (
 
 from backend.LeetcodeQuestionService.question_service import (
     get_leetcode_question_for_user,
-    generate_leetcode_question_for_pair,
     check_leetcode_answer
 )
 
@@ -119,10 +101,6 @@ def todays_task_route(user_id):
 
     if q:
         return jsonify(q)
-
-    # No question exists — generate one
-    generate_leetcode_question_for_pair(pair_id)
-
     return jsonify(get_leetcode_question_for_user(user_id))
 
 # ---------------------------------------------------------
