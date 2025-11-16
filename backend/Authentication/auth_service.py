@@ -6,7 +6,7 @@ def authenticate_user(username, password):
 
     # teammate will make the correct table and insert data
     cur.execute(
-        "SELECT user_id FROM User WHERE username = %s AND password = %s;",
+        "SELECT user_id FROM users WHERE username = %s AND password = %s;",
         (username, password)
     )
 

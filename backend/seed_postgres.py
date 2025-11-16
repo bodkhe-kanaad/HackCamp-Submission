@@ -47,7 +47,7 @@ def create_database_and_tables():
         
         # Create User table with foreign key to Pair
         cursor.execute("""
-            CREATE TABLE IF NOT EXISTS "User" (
+            CREATE TABLE IF NOT EXISTS "users" (
                 user_id SERIAL PRIMARY KEY,
                 username VARCHAR(255) NOT NULL UNIQUE,
                 password VARCHAR(255) NOT NULL,
