@@ -14,14 +14,11 @@ export default function Dashboard() {
   const [error, setError] = useState("");
   const [pairError, setPairError] = useState("");
 
-  // --------------------------
-  // LOAD DATA
-  // --------------------------
   useEffect(() => {
     async function loadEverything() {
       const id = localStorage.getItem("user_id");
       if (!id) {
-        setError("No session found — please log in again.");
+        setError("No user ID found. Please log in again.");
         return;
       }
 
@@ -54,12 +51,10 @@ export default function Dashboard() {
     loadEverything();
   }, []);
 
-  // --------------------------
-  // PAIR USER
-  // --------------------------
   async function handlePair() {
     setPairError("");
     setLoadingPair(true);
+
     const id = localStorage.getItem("user_id");
 
     try {
@@ -69,8 +64,8 @@ export default function Dashboard() {
       // fetch partner details now
       const mate = await api.get(`/pair/mate/${id}`);
       setPairFull(mate.data);
-    } catch {
-      setError("Pairing failed. Try again.");
+    } catch (err) {
+      setPairError("Pairing failed.");
     }
 
     setLoadingPair(false);
@@ -79,160 +74,108 @@ export default function Dashboard() {
   return (
     <>
       <Navbar />
+      <div style={styles.container}>
+        <h2>Your Dashboard</h2>
 
-      <div style={styles.page}>
-        <div style={styles.container}>
+        {loadingUser ? (
+          <p>Loading...</p>
+        ) : error ? (
+          <p style={{ color: "red" }}>{error}</p>
+        ) : (
+          <div style={styles.card}>
+            <h3>Hello, {user.username} 👋</h3>
 
-          <h1 style={styles.title}>Your Dashboard</h1>
+            <p>
+              <strong>Courses:</strong> {user.courses.join(", ")}
+            </p>
+            <p>
+              <strong>Interests:</strong> {user.interests.join(", ")}
+            </p>
 
-          {/* ERROR */}
-          {error && <p style={styles.error}>{error}</p>}
-
-          {/* LOADING SKELETON */}
-          {loadingUser && <div style={styles.skeleton}></div>}
-
-          {/* --------------------- */}
-          {/* USER PROFILE CARD     */}
-          {/* --------------------- */}
-          {user && !loadingUser && (
-            <div style={styles.card}>
-              <h2 style={styles.cardTitle}>👋 Welcome, {user.username}</h2>
-
-              <div style={styles.row}>
-                <span style={styles.label}>Courses</span>
-                <span>{user.courses.join(", ") || "None"}</span>
-              </div>
-
-              <div style={styles.row}>
-                <span style={styles.label}>Interests</span>
-                <span>{user.interests.join(", ") || "None"}</span>
-              </div>
-
-              {!pairBasic && (
-                <button
-                  style={styles.primaryButton}
-                  onClick={handlePair}
-                  disabled={loadingPair}
-                >
-                  {loadingPair ? "Finding your best match..." : "Find Study Partner"}
-                </button>
-              )}
-            </div>
-          )}
-
-          {/* --------------------- */}
-          {/* PARTNER CARD          */}
-          {/* --------------------- */}
-          {pairFull && (
-            <div style={styles.card}>
-              <h2 style={styles.cardTitle}>🤝 You’re Paired!</h2>
-
-              <div style={styles.partnerBox}>
-                <div style={styles.avatar}>
-                  {pairFull.partner.username[0].toUpperCase()}
-                </div>
-
-                <div>
-                  <h3 style={styles.partnerName}>
-                    {pairFull.partner.username}
-                  </h3>
-                  <p style={styles.partnerLine}>
-                    <strong>Courses:</strong> {pairFull.partner.courses.join(", ")}
-                  </p>
-                  <p style={styles.partnerLine}>
-                    <strong>Interests:</strong> {pairFull.partner.interests.join(", ")}
-                  </p>
-
-                  <p style={styles.streakLine}>
-                    🔥 Streak: <strong>{pairFull.streak || 0}</strong> days
-                  </p>
-                </div>
-              </div>
-
-              {/* AI MODE TOGGLE */}
-              <div style={styles.toggleRow}>
-                <span style={styles.label}>AI Mode</span>
-                <Toggle
-                  value={pairFull.ai_mode}
-                  onChange={async (newState) => {
-                    try {
-                      await api.post("/pair/toggle-mode", {
-                        user_id: user.user_id,
-                        ai_mode: newState,
-                      });
-                      setPairFull({ ...pairFull, ai_mode: newState });
-                    } catch {
-                      alert("Could not toggle AI mode.");
-                    }
-                  }}
-                />
-              </div>
-            </div>
-          )}
-
-          {/* --------------------- */}
-          {/* TASK CTA              */}
-          {/* --------------------- */}
-          {pairBasic && (
-            <div style={styles.taskCard}>
-              <h3 style={styles.taskTitle}>📘 Today’s Challenge</h3>
-              <p style={styles.taskText}>
-                Complete today’s question with your partner or with AI mode.
-              </p>
-
+            {/* If unpaired → show Pair Me */}
+            {!pairBasic && (
               <button
-                style={styles.taskButton}
+                style={styles.btn}
+                onClick={handlePair}
+                disabled={loadingPair}
+              >
+                {loadingPair ? "Pairing..." : "Pair Me"}
+              </button>
+            )}
+
+            {/* If paired → AI toggle */}
+            {pairBasic && pairFull && (
+              <div style={{ marginTop: "1.5rem" }}>
+                <label style={{ fontWeight: "bold" }}>
+                  AI Mode:
+                  <input
+                    type="checkbox"
+                    checked={pairFull.ai_mode === true}
+                    onChange={async (e) => {
+                      const newMode = e.target.checked;
+                      try {
+                        await api.post("/pair/toggle-mode", {
+                          user_id: user.user_id,
+                          ai_mode: newMode
+                        });
+
+                        // update UI immediately
+                        setPairFull({
+                          ...pairFull,
+                          ai_mode: newMode
+                        });
+                      } catch (err) {
+                        console.error(err);
+                        alert("Failed to toggle AI mode.");
+                      }
+                    }}
+                    style={{ marginLeft: "0.75rem" }}
+                  />
+                </label>
+              </div>
+            )}
+
+            {/* If paired → show task button */}
+            {pairBasic && (
+              <button
+                style={styles.taskBtn}
                 onClick={() => nav(`/solve/${user.user_id}`)}
               >
-                Start Task →
+                Today's Task
               </button>
-            </div>
-          )}
+            )}
 
-        </div>
+            {pairError && <p style={{ color: "red" }}>{pairError}</p>}
+          </div>
+        )}
+
+        {/* SHOW PARTNER INFO */}
+        {pairFull && (
+          <div style={styles.matchCard}>
+            <h3>🎉 You’re paired!</h3>
+
+            <p>
+              <strong>Partner:</strong> {pairFull.partner.username}
+            </p>
+
+            <p>
+              <strong>Courses:</strong>{" "}
+              {pairFull.partner.courses.join(", ")}
+            </p>
+
+            <p>
+              <strong>Interests:</strong>{" "}
+              {pairFull.partner.interests.join(", ")}
+            </p>
+          </div>
+        )}
       </div>
     </>
   );
 }
 
-/* -------------------------------------------
-   MODERN iOS-STYLE TOGGLE
--------------------------------------------- */
-function Toggle({ value, onChange }) {
-  return (
-    <div
-      onClick={() => onChange(!value)}
-      style={{
-        width: 46,
-        height: 26,
-        borderRadius: 20,
-        background: value ? "#34d399" : "#cbd5e1",
-        position: "relative",
-        cursor: "pointer",
-        transition: "0.2s",
-      }}
-    >
-      <div
-        style={{
-          width: 20,
-          height: 20,
-          borderRadius: "50%",
-          background: "#fff",
-          position: "absolute",
-          top: 3,
-          left: value ? 22 : 3,
-          transition: "0.2s",
-          boxShadow: "0 2px 4px rgba(0,0,0,0.2)",
-        }}
-      />
-    </div>
-  );
-}
-
-/* -------------------------------------------
-   STYLES
--------------------------------------------- */
 const styles = {
+<<<<<<< HEAD
   page: {
     minHeight: "100vh",
     width: "100%",
@@ -298,10 +241,17 @@ const styles = {
   primaryButton: {
     width: "100%",
     padding: "0.9rem",
+=======
+  container: { width: "70%", margin: "2rem auto", textAlign: "center" },
+  card: { background: "#f5f5f5", padding: "1.5rem", borderRadius: "12px" },
+  btn: {
+    marginTop: "1rem",
+    padding: "0.75rem 1.25rem",
+>>>>>>> 403514e (Comits)
     background: "#3b82f6",
-    borderRadius: "12px",
     color: "#fff",
     border: "none",
+<<<<<<< HEAD
     fontWeight: 600,
     cursor: "pointer",
     marginTop: "1rem",
@@ -371,11 +321,10 @@ const styles = {
     marginTop: "1rem",
     padding: "0.8rem 1.4rem",
     background: "#10b981",
+=======
+>>>>>>> 403514e (Comits)
     borderRadius: "10px",
-    border: "none",
-    color: "#fff",
-    fontWeight: 600,
-    cursor: "pointer",
+    cursor: "pointer"
   },
   taskBtn: {
     marginTop: "1rem",
