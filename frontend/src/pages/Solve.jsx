@@ -30,11 +30,13 @@ export default function Solve() {
         const statusRes = await api.get(`/pair/status/${user_id}`);
         if (statusRes.data.pair_id === null) {
           setError("You do not have a pair yet.");
+          setLoading(false);
           return;
         }
       } catch (err) {
         console.error(err);
         setError("Failed to check pair status.");
+        setLoading(false);
         return;
       }
 
@@ -48,7 +50,7 @@ export default function Solve() {
           id: raw.id,
           title: "Daily Coding Challenge",
           description: raw.question,
-          options: raw.options, // <-- KEEP DICT
+          options: raw.options, // <-- dictionary {A: "...", B: "..."}
         };
 
         setQuestion(formatted);
@@ -92,7 +94,8 @@ export default function Solve() {
         {loading && <p>Loading question...</p>}
         {error && <p style={{ color: "red" }}>{error}</p>}
 
-        {question && !loading && (
+        {/* Prevent render crashes with strong guards */}
+        {!loading && question && question.options && (
           <div style={styles.card}>
             <h3>{question.title}</h3>
             <p>{question.description}</p>
