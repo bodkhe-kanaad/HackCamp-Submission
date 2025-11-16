@@ -1,54 +1,37 @@
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
+import "./css/landing.css";
 
 export default function Landing() {
   const nav = useNavigate();
+  const isLoggedIn = Boolean(localStorage.getItem("user_id"));
 
   return (
     <>
-      <Navbar />
+      {isLoggedIn && <Navbar />}
 
-      <div style={styles.wrapper}>
-        <h1>Find Your Coding Study Buddy</h1>
-        <p>Pair with real students, solve problems daily, and stay accountable.</p>
+      <div className="landing-wrapper">
+        <div className="landing-hero">
+          <h1>Find Your Coding Study Buddy</h1>
+          <p>Pair with real students, solve problems daily, and stay accountable.</p>
 
-        <button style={styles.cta} onClick={() => nav("/signup")}>
-          Get Started
-        </button>
+          <button className="landing-cta" onClick={() => nav("/signup")}>
+            Get Started
+          </button>
 
-        <div style={styles.how}>
-          <div style={styles.card}>Match with a buddy</div>
-          <div style={styles.card}>Solve daily problems</div>
-          <div style={styles.card}>Win together</div>
+          <div className="landing-how">
+            <div className="landing-card">Match with a buddy</div>
+            <div className="landing-card">Solve daily problems</div>
+            <div className="landing-card">Win together</div>
+          </div>
         </div>
+
+        {/* <aside className="landing-side">
+          <h3 className="lead-title">Why PairUp?</h3>
+          <p className="lead">Daily practice • Real peers • Track your streaks</p>
+        </aside> */}
       </div>
     </>
   );
 }
-
-const styles = {
-  wrapper: { textAlign: "center", padding: "4rem 2rem" },
-  cta: {
-    padding: "0.75rem 1.5rem",
-    fontSize: "1.1rem",
-    marginTop: "1rem",
-    background: "#3b82f6",
-    border: "none",
-    color: "#fff",
-    borderRadius: "8px",
-    cursor: "pointer"
-  },
-  how: {
-    marginTop: "3rem",
-    display: "flex",
-    justifyContent: "center",
-    gap: "1.5rem"
-  },
-  card: {
-    padding: "1.5rem",
-    background: "#f7f7f7",
-    borderRadius: "12px",
-    width: "200px"
-  }
-};
 

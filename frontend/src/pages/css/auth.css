@@ -1,0 +1,130 @@
+:root {
+  --primary: #006078;
+  --bg: #FAEFED;
+  --accent: #E37C78;
+  --accent-soft: #FFD4D1;
+  --muted: #82BAC4;
+  --text: #07282a;
+  --card-bg: #ffffff;
+  --cta-hover: #005060;
+  --shadow-light: rgba(2,12,14,0.06);
+}
+
+
+/* 🌟 Main Sign-Up Box (Final Compact Settings) */
+.signup-container {
+  width: 90vw;
+  max-width: 340px; /* ⬅️ Final, aggressive width reduction */
+  height: auto;
+  max-height: 90vh; 
+  
+  margin: 3vh auto; /* ⬅️ Reduced vertical margin from 5vh to 3vh */
+  padding: 20px; /* ⬅️ Final, aggressive padding reduction */
+  
+  background: var(--card-bg);
+  border-radius: 16px;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+/* 🌟 Sign Up Form Heading */
+.signup-title {
+  color: var(--primary);
+  font-size: 24px; /* Reduced font size to save vertical space */
+  font-weight: 800;
+  margin-top: 5px; /* Added small top margin */
+  margin-bottom: 20px; /* Reduced space below heading */
+  text-align: center;
+}
+
+/* Form Inputs */
+label {
+  display: block;
+  margin-bottom: 4px; /* Reduced vertical space */
+  font-weight: 600;
+  color: var(--text);
+}
+input[type="text"], 
+input[type="email"]{
+    background: var(--accent-soft);
+}
+
+input[type="password"] {
+  width: 100%;
+  padding: 8px 14px; /* Reduced vertical padding for smaller height */
+  margin-bottom: 14px;
+  border: none; /* Removed border, relying on background */
+  border-radius: 8px;
+  color: #fff; 
+  background: var(--accent-soft); /* Dark background to match screenshot inputs */
+  transition: box-shadow 0.3s ease;
+  box-sizing: border-box;
+}
+
+input:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--primary); /* Blue focus ring */
+}
+
+
+/* 🌟 Form Section Headings (e.g., Select Courses) */
+.form-section-heading { 
+    margin-top: 15px; /* Reduced space above the heading */
+    margin-bottom: 8px; /* Reduced space below the heading */
+    font-size: 14px; /* Smaller font size for tags/section headings */
+    font-weight: 700;
+    color: var(--text);
+}
+
+/* 🌟 Tags Container */
+.course-tags, .interest-tags {
+    margin-bottom: 15px; /* Reduced space below the entire tag block */
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px; /* Reduced space between tags */
+}
+
+/* 🌟 Individual Tags */
+.tag {
+    margin: 2px; /* Reduced margins around tags to pack them tightly */
+    padding: 4px 8px; /* Reduced padding inside tags */
+    border-radius: 4px;
+    font-size: 13px; /* Smaller tag font size */
+}
+
+/* CTA button (Sign Up button) */
+.signup-container .landing-cta {
+  width: 100%; /* Make button full width of the container */
+  margin-top: 10px;
+}
+
+/* -------------------------------------- */
+/* 4. RESPONSIVE ADJUSTMENTS */
+/* -------------------------------------- */
+
+@media (max-width: 768px) {
+  .landing-title {
+    font-size: 36px;
+  }
+  .landing-hero {
+    padding: 36px 20px 50px 20px;
+  }
+  .landing-wrapper {
+    margin: 20px auto;
+    gap: 20px;
+  }
+  .landing-card {
+    flex: 0 0 calc(50% - 16px); /* Two cards per row on smaller screens */
+  }
+}
+
+@media (max-width: 480px) {
+  .landing-title {
+    font-size: 30px;
+  }
+  .landing-card {
+    flex: 0 0 100%; /* One card per row on very small screens */
+  }
+}

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import { api } from "../services/api";
+import "./css/auth.css";
 
 export default function SignUp() {
   const nav = useNavigate();
@@ -132,23 +133,60 @@ export default function SignUp() {
 }
 
 const styles = {
+  // 1. CARD: Main Container (Reducing padding and margin)
   card: {
-    width: "400px",
-    margin: "2rem auto",
-    padding: "2rem",
+    width: "90%",
+    maxWidth: "300px", // ⬅️ FURTHER REDUCED MAX WIDTH (from 340px to 300px)
+    
+    // Minimal vertical margin, minimal padding
+    margin: "20px auto", // Reduced top margin
+    padding: "15px",    // ⬅️ MINIMAL PADDING (from 20px to 15px)
+    
     borderRadius: "12px",
     background: "#fafafa",
     textAlign: "center"
   },
+  
+  // 2. INPUTS: Reducing vertical size
   input: {
     width: "100%",
-    padding: "0.75rem",
-    margin: "0.5rem 0",
+    padding: "0.5rem",
+    margin: "0.2rem 0",
     borderRadius: "8px",
-    border: "1px solid #ccc"
+    border: "1px solid #FFD4D1",
+    boxSizing: "border-box", 
+
+    // 🌟 THE FIX: Explicitly setting the background to white and text to black
+    background: "white", 
+    color: "black",
   },
+  
+  // 3. SECTIONS: Reducing space between content blocks
+  section: { 
+    textAlign: "left", 
+    marginTop: "0.8rem" // ⬅️ REDUCED TOP MARGIN (from 1rem)
+  },
+  
+  // 4. MULTI-SELECT TAGS: Tightening the space around tags
+  multiSelect: {
+    display: "flex",
+    flexWrap: "wrap",
+    gap: "4px",        // ⬅️ MINIMAL GAP
+    marginTop: "4px"   // ⬅️ MINIMAL TOP MARGIN
+  },
+  
+  // 5. TAG OPTIONS: Making individual tags smaller
+  option: {
+    padding: "3px 6px", // ⬅️ MINIMAL PADDING
+    borderRadius: "6px",
+    cursor: "pointer",
+    border: "1px solid #ccc",
+    fontSize: "0.8rem" // ⬅️ SMALLER FONT SIZE
+  },
+
+  // 6. BUTTON: Reducing button margin
   btn: {
-    marginTop: "1rem",
+    marginTop: "0.8rem", // ⬅️ REDUCED TOP MARGIN
     padding: "0.75rem",
     width: "100%",
     background: "#3b82f6",
@@ -157,19 +195,11 @@ const styles = {
     borderRadius: "8px",
     cursor: "pointer"
   },
-  link: { color: "#3b82f6", cursor: "pointer" },
-  section: { textAlign: "left", marginTop: "1.5rem" },
-  multiSelect: {
-    display: "flex",
-    flexWrap: "wrap",
-    gap: "8px",
-    marginTop: "8px"
-  },
-  option: {
-    padding: "6px 12px",
-    borderRadius: "8px",
-    cursor: "pointer",
-    border: "1px solid #ccc",
-    fontSize: "0.9rem"
-  }
+  
+  // 7. H2 (Create Account): Ensuring minimal top margin
+  // (You don't have an H2 style, but if you did, you would target it)
+  // Since it's directly inside the card, its margin is controlled by browser defaults.
+  // We'll trust the reduced card padding is enough, but if H2 still has a large margin:
+  // Add an inline style to the H2 tag in your JSX:
+  // <h2 style={{marginTop: 0, marginBottom: '20px'}}>Create Account</h2>
 };
