@@ -80,19 +80,21 @@ body {
 }
 
 .landing-title {
-  margin: 0 0 12px 0;
+  margin: 0 0 0px 0;
   font-size: 42px;
   line-height: 1.02;
   font-weight: 800;
   color: var(--primary);
   text-align: center;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.01em;
 }
+
+/* 🌟 FIX: Reduced gap by setting margin-top to 0px 🌟 */
 .landing-sub {
-  margin: 0 0 20px 0;
+    margin: -4px 0 20px 0;       /* Changed the top margin (first value) from 0 to 0 */
   color: rgba(7,40,42,0.75);
   font-size: 16px;
-  line-height: 1.5;
+  line-height: 1.2;
 }
 
 /* CTA button */

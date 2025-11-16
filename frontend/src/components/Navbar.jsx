@@ -4,7 +4,7 @@ export default function Navbar({ center }) {
   return (
     <nav style={styles.nav}>
       <div style={styles.left}>
-        <Link to="/" style={styles.logo}>DuoLearn</Link>
+        <Link to="/" style={styles.logo}>PairUp</Link>
       </div>
 
       <div style={styles.center}>{center}</div>

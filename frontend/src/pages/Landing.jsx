@@ -12,8 +12,9 @@ export default function Landing() {
 
       <div className="landing-wrapper">
         <div className="landing-hero">
-          <h1>Find Your Coding Study Buddy</h1>
-          <p>Pair with real students, solve problems daily, and stay accountable.</p>
+          <h1>PairUp</h1>
+          <p>Pair. Learn. Streak.</p>
+          {/* <p>Pair with real students, solve problems daily, and stay accountable.</p> */}
 
           <button className="landing-cta" onClick={() => nav("/signup")}>
             Get Started
