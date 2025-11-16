@@ -9,202 +9,177 @@
   --cta-hover: #005060;
   --shadow-light: rgba(2,12,14,0.06);
 }
+/* ------------------------------------------------------------ */
+/* LANDING PAGE LAYOUT                                         */
+/* ------------------------------------------------------------ */
 
-/* page base */
-html, body, #root {
-  /* CRUCIAL: Set width to 100% and remove any default margins/padding */
-  width: 100%; 
-  margin: 0;
-  padding: 0; 
-  font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-  scroll-behavior: smooth;
+.landing-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -1;
+  background: linear-gradient(
+    135deg,
+    var(--accent-soft) 0%,
+    #eef7f9 40%,
+    var(--bg) 100%
+  );
 }
-body {
-  background: var(--bg);
-  color: var(--text);
-  /* CRUCIAL: Remove scrollbar space if not needed */
-  overflow-x: hidden; 
-}
 
-
-/* main layout */
+/* Wrapper that centers everything */
 .landing-wrapper {
-  /* Set a defined width and center with auto margins */
-  width: 90%; 
-  max-width: 1080px; 
-  height: 80vh;  
-  margin: 36px auto;
-   /* <-- This is the core centering rule */
-  
-  /* Existing styles */
+  width: 100%;
+  max-width: 1000px;
+  margin: 60px auto;
+  padding: 0 20px;
   display: flex;
-  align-items: center;     /* center horizontally */
   justify-content: center;
-  flex-direction: column;
-  align-items: center; 
-  gap: 28px;
-  padding: 20px 20px;
-  box-sizing: border-box;
+  animation: fadeIn 0.6s ease;
 }
+
+/* ------------------------------------------------------------ */
+/* HERO BOX (Glass card)                                        */
+/* ------------------------------------------------------------ */
 
 .landing-hero {
-  width: 100%;             /* full width of wrapper */
-  max-width: 900px;        /* optional, limits max width */
-  padding: 48px 28px;      /* your existing padding */
-  border-radius: 12px;
-  background: linear-gradient(180deg, var(--accent-soft), rgba(0,96,120,0.02));
-  color: var(--text);
-  display: flex;
-  flex-direction: column;
-  align-items: center;     /* center text */
-  box-shadow: 0 10px 30px var(--shadow-light);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  width: 100%;
+  max-width: 820px;
+  padding: 60px 40px;
+  border-radius: 22px;
+
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(14px);
+
+  box-shadow: 0 16px 40px var(--shadow-light);
+  text-align: center;
+
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
 
-/* feature cards row */
-.landing-how {
-  margin-bottom: 0;
-  margin-top: 32px;
-  display: flex;
-  gap: 16px;
-  flex-wrap: wrap;
-  height: 100%;
-  justify-content: center; /* Keeps cards centered within the wrapper */
-  width: 100%; /* Ensures the row occupies the full wrapper width */
+/* Hover for desktop screens */
+@media (min-width: 768px) {
+  .landing-hero:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 20px 50px var(--shadow-light);
+  }
 }
 
-
-.landing-hero:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 20px 40px var(--shadow-light);
-}
+/* ------------------------------------------------------------ */
+/* TEXT STYLING                                                 */
+/* ------------------------------------------------------------ */
 
 .landing-title {
-  margin: 0 0 0px 0;
-  font-size: 42px;
-  line-height: 1.02;
+  font-size: 3.4rem;
   font-weight: 800;
   color: var(--primary);
-  text-align: center;
-  letter-spacing: -0.01em;
+  margin-bottom: 6px;
+  letter-spacing: -0.02em;
 }
 
-/* 🌟 FIX: Reduced gap by setting margin-top to 0px 🌟 */
-.landing-sub {
-    margin: -4px 0 20px 0;       /* Changed the top margin (first value) from 0 to 0 */
-  color: rgba(7,40,42,0.75);
-  font-size: 16px;
-  line-height: 1.2;
+.landing-subtitle {
+  font-size: 1.35rem;
+  color: rgba(7, 40, 42, 0.7);
+  margin-bottom: 32px;
+  font-weight: 500;
 }
 
-/* CTA button */
+/* ------------------------------------------------------------ */
+/* CTA BUTTON                                                   */
+/* ------------------------------------------------------------ */
+
 .landing-cta {
+  padding: 14px 30px;
   background: linear-gradient(90deg, var(--primary), var(--muted));
   color: #fff;
   border: none;
-  padding: 14px 24px;
-  border-radius: 12px;
-  font-weight: 700;
+  border-radius: 14px;
   cursor: pointer;
-  box-shadow: 0 10px 30px rgba(0,96,120,0.12);
+  font-size: 1.1rem;
+  font-weight: 700;
+  transition: 0.2s ease;
+  box-shadow: 0 8px 26px rgba(0, 96, 120, 0.18);
   width: fit-content;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
+
 .landing-cta:hover {
   background: var(--cta-hover);
-  box-shadow: 0 14px 34px rgba(0,96,120,0.2);
   transform: translateY(-2px);
 }
-.landing-cta:active {
-  transform: translateY(1px);
-}
 
-/* feature cards row */
-.landing-how {
-  margin-top: 32px;
+/* ------------------------------------------------------------ */
+/* FEATURE CARDS                                                */
+/* ------------------------------------------------------------ */
+
+.landing-features {
+  margin-top: 42px;
   display: flex;
-  gap: 16px;
+  flex-direction: row;
+  gap: 18px;
   flex-wrap: wrap;
-  justify-content: center; /* Centers the cards when they wrap */
-  width: 100%; /* Ensure it spans the width to allow proper centering */
+  justify-content: center;
 }
+
 .landing-card {
-  flex: 0 0 180px; /* Reduced fixed width for smaller cards */
-  background: var(--card-bg);
-  padding: 18px 14px; /* Adjusted padding */
-  border-radius: 12px;
-  text-align: center;
-  font-weight: 700;
-  color: var(--text);
-  box-shadow: 0 6px 20px var(--shadow-light);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  cursor: pointer;
-  box-sizing: border-box; /* Ensure padding is included in the width */
-}
-.landing-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 28px var(--shadow-light);
-}
+  flex: 0 1 200px;
+  padding: 20px 16px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05);
 
-/* right panel - Renamed to better reflect its purpose as a general "side" or "info" panel */
-/* This section seems to correspond to the bottom part you wanted inside a box */
-/*.landing-info-panel { /* Renamed for clarity */
-  /* width: 100%;
-  background: var(--card-bg);
-  padding: 22px 26px;
-  border-radius: 12px;
-  box-shadow: 0 10px 30px var(--shadow-light);
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  box-sizing: border-box; /* Include padding in the width */
-/* }
-.lead-title {
-  margin: 0;
-  color: var(--primary);
-  font-size: 18px;
-  font-weight: 800;
-} */
-/* .lead {
-  margin: 0;
-  color: var(--text);
   font-weight: 600;
-} */ */
+  font-size: 1.05rem;
+  text-align: center;
+  cursor: pointer;
 
-/* subtle accents / badges */
-.landing-info-panel .badge { /* Updated selector to match new class name */
-  display: inline-block;
-  background: var(--accent-soft);
-  color: var(--accent);
-  padding: 6px 12px;
-  border-radius: 100px;
-  font-weight: 700;
-  margin-top: 6px;
-  font-size: 14px;
+  transition: 0.25s ease;
 }
 
-/* Responsive adjustments for smaller screens if needed */
+.landing-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
+}
+
+/* ------------------------------------------------------------ */
+/* FADE ANIMATION                                               */
+/* ------------------------------------------------------------ */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ------------------------------------------------------------ */
+/* RESPONSIVE                                                   */
+/* ------------------------------------------------------------ */
+
 @media (max-width: 768px) {
   .landing-title {
-    font-size: 36px;
+    font-size: 2.8rem;
   }
+
   .landing-hero {
-    padding: 36px 20px;
+    padding: 40px 24px;
   }
-  .landing-wrapper {
-    margin: 20px auto;
-    gap: 20px;
-  }
+
   .landing-card {
-    flex: 0 0 calc(50% - 16px); /* Two cards per row on smaller screens */
+    flex: 0 1 calc(50% - 16px);
   }
 }
 
 @media (max-width: 480px) {
   .landing-title {
-    font-size: 30px;
+    font-size: 2.4rem;
   }
+
   .landing-card {
-    flex: 0 0 100%; /* One card per row on very small screens */
+    flex: 0 1 100%;
   }
 }

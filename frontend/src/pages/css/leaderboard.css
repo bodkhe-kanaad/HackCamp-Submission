@@ -1,77 +1,179 @@
-/* -------------------------------------- */
-/* 1. LAYOUT & TABLE STRUCTURE (KEEP) */
-/* -------------------------------------- */
-
-/* Container for the whole Leaderboard (Crucial for centering) */
-.leaderboard-container h2 {
-  text-align: center;
-  margin-bottom: 20px; /* Add some space between the title and the table */
-  color: var(--primary); /* Optional: Use your primary color for emphasis */
+/* ------------------------------------------------------ */
+/* 0. ROOT VARIABLES (Feel free to adjust)                */
+/* ------------------------------------------------------ */
+:root {
+  --primary: #1f2937;
+  --accent-soft: rgba(255, 223, 112, 0.25);
+  --muted: #cbd5e1;
+  --row-hover: rgba(0, 96, 120, 0.05);
+  --card-bg: rgba(255, 255, 255, 0.85);
+  --shadow: 0 4px 18px rgba(0,0,0,0.07);
 }
+
+/* ------------------------------------------------------ */
+/* 1. PAGE WRAPPER + TITLE                                */
+/* ------------------------------------------------------ */
+
+.leaderboard-container {
+  width: 90%;
+  max-width: 900px;
+  margin: 2.5rem auto;
+  padding: 1rem;
+  text-align: center;
+}
+
+.leaderboard-container h2 {
+  font-size: 2rem;
+  margin-bottom: 20px;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+/* Optional soft background if you want it */
+.leaderboard-container::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(135deg, #eef2ff, #fefce8, #f0fdf4);
+  z-index: -1;
+}
+
+/* ------------------------------------------------------ */
+/* 2. TABLE CARD (GLASS EFFECT)                           */
+/* ------------------------------------------------------ */
 
 .leaderboard-table {
   width: 100%;
-  border-collapse: collapse; 
+  border-collapse: collapse;
   font-size: 16px;
-  text-align: left;
+  background: var(--card-bg);
+  backdrop-filter: blur(12px);
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: var(--shadow);
 }
+
+/* ------------------------------------------------------ */
+/* 3. TABLE HEAD                                           */
+/* ------------------------------------------------------ */
 
 .leaderboard-table th {
-  padding: 12px 15px;
+  padding: 14px 16px;
   border-bottom: 2px solid var(--muted);
-  font-weight: 700;
+  font-weight: 800;
   color: var(--primary);
   text-transform: uppercase;
-  font-size: 14px;
+  letter-spacing: 0.5px;
+  background: rgba(255, 255, 255, 0.6);
 }
 
+/* ------------------------------------------------------ */
+/* 4. TABLE BODY                                           */
+/* ------------------------------------------------------ */
+
 .leaderboard-table td {
-  padding: 12px 15px;
-  border-bottom: 1px solid rgba(0,0,0,0.05);
+  padding: 14px 16px;
+  border-bottom: 1px solid rgba(0,0,0,0.04);
   vertical-align: middle;
+  transition: background 0.2s ease;
 }
 
 .leaderboard-table tr:hover {
-  background-color: rgba(0, 96, 120, 0.03); 
+  background-color: var(--row-hover);
 }
 
-/* -------------------------------------- */
-/* 2. IMAGE MEDAL & TOP ROW STYLING (KEEP/ADD) */
-/* -------------------------------------- */
+/* ------------------------------------------------------ */
+/* 5. TOP RANK STYLING (Your medals kept)                 */
+/* ------------------------------------------------------ */
 
-/* Highlights the entire top 3 rows */
 .top-rank-row {
-  background-color: var(--accent-soft); 
-  font-weight: 600;
+  background-color: var(--accent-soft);
+  font-weight: 700;
 }
 
-/* Container for the image and rank number (Needed for your JSX) */
-.medal-display {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px; 
-    font-weight: 700;
+.top-rank-row:hover {
+  background-color: rgba(255, 223, 112, 0.4);
 }
 
-/* 🏅 Resizing the Medal Image (Needed for the big image fix) */
-.medal-icon {
-    width: 32px; 
-    height: 32px;
-    object-fit: contain;
-    flex-shrink: 0;
-}
-
-/* 🛑 Override the rank cell's row background (KEEP) */
-.top-rank-row td:first-child {
-  background-color: inherit; 
-}
+/* Rank cell */
 .leaderboard-table td:first-child {
-  text-align: center; /* Ensures the medal-display is centered in the Rank cell */
+  text-align: center;
 }
 
-/* -------------------------------------- */
-/* 3. BADGE STYLING (ADD BACK) */
-/* -------------------------------------- */
+/* ------------------------------------------------------ */
+/* 6. MEDAL DISPLAY BOX                                   */
+/* ------------------------------------------------------ */
 
-/* Add your badge styles (.badge, .badge-solver, .badge-pro) here */
+.medal-display {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-weight: 700;
+}
+
+/* Medal image size */
+.medal-icon {
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
+  flex-shrink: 0;
+  filter: drop-shadow(0 3px 3px rgba(0,0,0,0.15));
+}
+
+/* Rank number next to medal */
+.rank-number {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+/* ------------------------------------------------------ */
+/* 7. BADGES (Optional — Add Back)                        */
+/* ------------------------------------------------------ */
+
+.badge {
+  padding: 4px 8px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 600;
+  margin-left: 8px;
+}
+
+.badge-solver {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.badge-pro {
+  background: #f0fdf4;
+  color: #166534;
+}
+
+/* ------------------------------------------------------ */
+/* 8. HOVER ELEVATION (Optional but pretty)               */
+/* ------------------------------------------------------ */
+
+.leaderboard-table tr:not(.top-rank-row):hover {
+  transform: scale(1.002);
+}
+
+/* ------------------------------------------------------ */
+/* 9. RESPONSIVE DESIGN                                   */
+/* ------------------------------------------------------ */
+
+@media (max-width: 600px) {
+  .leaderboard-container {
+    width: 95%;
+  }
+
+  .leaderboard-table th,
+  .leaderboard-table td {
+    padding: 10px;
+    font-size: 14px;
+  }
+
+  .medal-icon {
+    width: 26px;
+    height: 26px;
+  }
+}

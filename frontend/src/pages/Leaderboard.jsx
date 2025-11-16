@@ -2,17 +2,14 @@ import Navbar from "../components/Navbar";
 import { useNavigate } from "react-router-dom"; 
 import "./css/leaderboard.css";
 
-import medal from './medalImg/medal.png'; // Assuming medal.png is gold (Rank 1)
-import silverMedal from './medalImg/medalSilver.png'; // Assuming medal (1).png is silver (Rank 2)
-import bronzeMedal from './medalImg/medalBronze.png';
-
-// The 'styles' object must be defined at the bottom of the file
-// to be accessed globally within the file.
+import medal from "./medalImg/medal.png"; 
+import silverMedal from "./medalImg/medalSilver.png";
+import bronzeMedal from "./medalImg/medalBronze.png";
 
 export default function Leaderboard() {
-  const nav = useNavigate(); 
+  const nav = useNavigate();
 
-  // We'll simulate user data with random generation here
+  // Temporary mock data
   const users = [...Array(20)].map((_, i) => ({
     rank: i + 1,
     name: `User ${i + 1}`,
@@ -20,94 +17,70 @@ export default function Leaderboard() {
     problems: Math.floor(Math.random() * 50),
   }));
 
-  // Function to determine medal class for the rank cell
-  const getRankClass = (rank) => {
-    if (rank === 1) return "medal-gold";
-    if (rank === 2) return "medal-silver";
-    if (rank === 3) return "medal-bronze";
-    return "";
-  };
-
-  // Function to determine if a badge should be shown
-  const getBadge = (user) => {
-    if (user.problems > 40) {
-      return <span className="badge badge-solver">Problem Solver</span>;
-    }
-    if (user.points > 450) {
-        return <span className="badge badge-pro">High Scorer</span>;
-    }
-    return null;
-  };
-
-  const getMedalImageSrc = (rank) => {
+  const getMedalSrc = (rank) => {
     if (rank === 1) return medal;
     if (rank === 2) return silverMedal;
     if (rank === 3) return bronzeMedal;
-    return null; 
+    return null;
   };
 
   return (
     <>
       <Navbar />
 
-      {/* The external CSS file needs to define .leaderboard-container */}
-      <div className="leaderboard-container"> 
-        <h2>🏆 Leaderboard</h2>
+      {/* Gradient background */}
+      <div className="leaderboard-bg"></div>
 
-        {/* The external CSS file needs to define .leaderboard-table */}
-        <table className="leaderboard-table" style={styles.table}> 
-          <thead>
-             {/* This section is now correctly rendered */}
-             <tr> 
-              <th>Rank</th>
-              <th>Name</th>
-              <th>Points</th>
-              <th>Problems</th>
-            </tr>
-          </thead>
-          <tbody>
-            {users.map((user) => (
-              <tr key={user.rank} className={user.rank <= 3 ? "top-rank-row" : ""}>
-                
-                {/* 🥇 IMAGE MEDAL IMPLEMENTATION 🥈 */}
-                {/* We are no longer using the CSS podium block, but a container for flex display */}
-                <td>
-                  {user.rank <= 3 ? (
-                    <div className="medal-display"> 
-                      <img 
-                        src={getMedalImageSrc(user.rank)} 
-                        alt={`${user.rank} Place Medal`} 
-                        className="medal-icon"
-                      />
-                      <span className="rank-number">{user.rank}</span>
-                    </div>
-                  ) : (
-                    user.rank
-                  )}
-                </td>
-                {/* 🥉 END IMAGE MEDAL IMPLEMENTATION 🥉 */}
+      <div className="leaderboard-wrapper">
+        <h2 className="leaderboard-title">🏆 Global Leaderboard</h2>
 
-                {/* NOTE: You also removed the badge display logic from the Name cell */}
-                <td>
-                  {user.name}
-                </td>
-
-                <td>{user.points}</td>
-                <td>{user.problems}</td>
+        <div className="leaderboard-card">
+          <table className="leaderboard-table">
+            <thead>
+              <tr>
+                <th>Rank</th>
+                <th>User</th>
+                <th>Points</th>
+                <th>Problems</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+
+            <tbody>
+              {users.map((user) => (
+                <tr
+                  key={user.rank}
+                  className={`lb-row ${user.rank <= 3 ? "lb-top" : ""}`}
+                >
+                  {/* Medal + Rank */}
+                  <td className="lb-rank">
+                    {user.rank <= 3 ? (
+                      <div className="medal-box">
+                        <img
+                          src={getMedalSrc(user.rank)}
+                          alt="medal"
+                          className="medal-img"
+                        />
+                        <span className="rank-text">{user.rank}</span>
+                      </div>
+                    ) : (
+                      <span className="rank-text">{user.rank}</span>
+                    )}
+                  </td>
+
+                  {/* Name */}
+                  <td className="lb-name">{user.name}</td>
+
+                  {/* Points */}
+                  <td className="lb-points">{user.points}</td>
+
+                  {/* Problems */}
+                  <td>{user.problems}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </>
   );
 }
-
-const styles = {
-  table: {
-    width: "100%",
-    borderCollapse: "collapse",
-    marginTop: "1.5rem"
-    // Other styles from the previous steps are handled by the external CSS
-  }
-};
