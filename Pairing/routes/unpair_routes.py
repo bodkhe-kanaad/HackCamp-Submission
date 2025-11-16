@@ -11,7 +11,7 @@ def unpair():
     conn = get_connection()
     cur = conn.cursor()
 
-    # find the partner
+    # 1. Check if the user exists
     cur.execute("SELECT partner_id FROM users WHERE id = %s;", (user_id,))
     row = cur.fetchone()
 
@@ -22,14 +22,27 @@ def unpair():
 
     partner_id = row[0]
 
-    # if user has no partner
+    # 2. If user is already unpaired
     if partner_id is None:
         cur.close()
         conn.close()
         return jsonify({"success": True, "message": "user already unpaired"})
 
-    # unpair both sides
-    cur.execute("UPDATE users SET partner_id = NULL WHERE id = %s OR id = %s;", (user_id, partner_id))
+    # 3. Check if partner still exists (important!)
+    cur.execute("SELECT id FROM users WHERE id = %s;", (partner_id,))
+    partner_row = cur.fetchone()
+
+    # If partner user no longer exists, just unpair the main user
+    if not partner_row:
+        cur.execute("UPDATE users SET partner_id = NULL WHERE id = %s;", (user_id,))
+        conn.commit()
+        cur.close()
+        conn.close()
+        return jsonify({"success": True, "message": "partner missing; user unpaired"})
+
+    # 4. Safe reciprocal unpairing
+    cur.execute("UPDATE users SET partner_id = NULL WHERE id = %s;", (user_id,))
+    cur.execute("UPDATE users SET partner_id = NULL WHERE id = %s;", (partner_id,))
 
     conn.commit()
     cur.close()

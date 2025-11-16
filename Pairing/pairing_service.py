@@ -74,7 +74,7 @@ def pair_user(user_id):
     if not current_user:
         return None
 
-    # Already paired?
+    # Already paired
     if current_user["partner_id"] is not None:
         return current_user["partner_id"]
 
@@ -95,14 +95,23 @@ def pair_user(user_id):
         return None
 
     partner_id = best_match["id"]
+    if partner_id is None:
+        return None
 
-    # Update DB
+    # Update both users reciprocally
     conn = get_connection()
     cur = conn.cursor()
 
+    # user_id's partner becomes partner_id
     cur.execute(
-        "UPDATE users SET partner_id = %s WHERE id = %s OR id = %s;",
-        (partner_id, user_id, partner_id)
+        "UPDATE users SET partner_id = %s WHERE id = %s;",
+        (partner_id, user_id)
+    )
+
+    # partner_id's partner becomes user_id
+    cur.execute(
+        "UPDATE users SET partner_id = %s WHERE id = %s;",
+        (user_id, partner_id)
     )
 
     conn.commit()
@@ -110,9 +119,3 @@ def pair_user(user_id):
     conn.close()
 
     return partner_id
-
-
-# Get the user's partner (for frontend)
-def get_paired_user(user_id):
-    user = get_user(user_id)
-    return user["partner_id"]
