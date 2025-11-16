@@ -175,7 +175,7 @@ export default function Dashboard() {
 
 const styles = {
   container: {
-    width: "80%",
+    width: "60%",
     margin: "2rem auto",
     textAlign: "center",
   },

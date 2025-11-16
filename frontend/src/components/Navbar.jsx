@@ -19,6 +19,10 @@ export default function Navbar({ center }) {
 
 const styles = {
   nav: {
+    position: "fixed",
+    top: 0,
+    left: 0,
+    right: 0,
     display: "flex",
     justifyContent: "space-between",
     padding: "1rem 2rem",

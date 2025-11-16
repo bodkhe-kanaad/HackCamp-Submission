@@ -16,8 +16,7 @@ export default function Leaderboard() {
   const users = [...Array(20)].map((_, i) => ({
     rank: i + 1,
     name: `User ${i + 1}`,
-    points: Math.floor(Math.random() * 500),
-    problems: Math.floor(Math.random() * 50),
+    streak: Math.floor(Math.random() * 500),
   }));
 
   // Function to determine medal class for the rank cell
@@ -59,10 +58,9 @@ export default function Leaderboard() {
           <thead>
              {/* This section is now correctly rendered */}
              <tr> 
-              <th>Rank</th>
+              <th style={styles.th}>Rank</th>
               <th>Name</th>
-              <th>Points</th>
-              <th>Problems</th>
+              <th>Streak</th>
             </tr>
           </thead>
           <tbody>
@@ -92,8 +90,7 @@ export default function Leaderboard() {
                   {user.name}
                 </td>
 
-                <td>{user.points}</td>
-                <td>{user.problems}</td>
+                <td>{user.streak}</td>
               </tr>
             ))}
           </tbody>
@@ -109,5 +106,8 @@ const styles = {
     borderCollapse: "collapse",
     marginTop: "1.5rem"
     // Other styles from the previous steps are handled by the external CSS
+  },
+  th: {
+    textAlign: "center", 
   }
 };
