@@ -13,13 +13,12 @@ export default function Dashboard() {
   const [loadingUser, setLoadingUser] = useState(true);
   const [loadingPair, setLoadingPair] = useState(false);
   const [error, setError] = useState("");
-  const [pairError, setPairError] = useState("");
 
   useEffect(() => {
     async function load() {
       const id = localStorage.getItem("user_id");
       if (!id) {
-        setError("No user ID found — please sign in again.");
+        setError("No user session found — please log in again.");
         return;
       }
 
@@ -27,7 +26,7 @@ export default function Dashboard() {
         const userRes = await api.get(`/user/${id}`);
         setUser(userRes.data);
       } catch {
-        setError("Failed to load profile.");
+        setError("Failed to load user profile.");
       }
 
       try {
@@ -38,9 +37,7 @@ export default function Dashboard() {
           const mate = await api.get(`/pair/mate/${id}`);
           setPairFull(mate.data);
         }
-      } catch (err) {
-        console.error("Pair error:", err);
-      }
+      } catch {}
 
       setLoadingUser(false);
     }
@@ -49,9 +46,8 @@ export default function Dashboard() {
   }, []);
 
   async function handlePair() {
-    setPairError("");
     setLoadingPair(true);
-    
+
     const id = localStorage.getItem("user_id");
 
     try {
@@ -61,7 +57,7 @@ export default function Dashboard() {
       const mate = await api.get(`/pair/mate/${id}`);
       setPairFull(mate.data);
     } catch {
-      setPairError("Pairing failed, try again.");
+      setError("Pairing failed, try again.");
     }
 
     setLoadingPair(false);
@@ -71,101 +67,108 @@ export default function Dashboard() {
     <>
       <Navbar />
 
+      {/* Background gradient */}
+      <div style={styles.bg}></div>
+
       <div style={styles.container}>
+        <h1 style={styles.pageTitle}>Your Dashboard</h1>
 
-        <h2 style={styles.heading}>Dashboard</h2>
-
-        {loadingUser && <div style={styles.skeletonCard}></div>}
-
+        {/* Error message */}
         {error && <p style={styles.error}>{error}</p>}
 
-        {!loadingUser && !error && user && (
-          <div style={styles.card}>
-            <h3 style={styles.cardTitle}>Welcome, {user.username} 👋</h3>
+        {/* Loading skeleton */}
+        {loadingUser && <div style={styles.skeleton}></div>}
 
-            <div style={styles.row}>
-              <div style={styles.label}>Courses:</div>
-              <div>{user.courses.join(", ")}</div>
+        {/* Profile Card */}
+        {!loadingUser && user && (
+          <div style={styles.profileCard}>
+            <h2 style={styles.sectionTitle}>👋 Welcome, {user.username}</h2>
+
+            <div style={styles.profileRow}>
+              <span style={styles.label}>Courses</span>
+              <span>{user.courses.join(", ")}</span>
             </div>
 
-            <div style={styles.row}>
-              <div style={styles.label}>Interests:</div>
-              <div>{user.interests.join(", ")}</div>
+            <div style={styles.profileRow}>
+              <span style={styles.label}>Interests</span>
+              <span>{user.interests.join(", ")}</span>
             </div>
 
             {!pairBasic && (
               <button
-                style={styles.primaryButton}
+                style={styles.primary}
                 onClick={handlePair}
                 disabled={loadingPair}
               >
-                {loadingPair ? "Pairing..." : "Find Me a Study Partner"}
+                {loadingPair ? "Finding best match..." : "Find Study Partner"}
               </button>
             )}
-
-            {pairBasic && pairFull && (
-              <div style={styles.toggleRow}>
-                <span style={styles.label}>AI Mode:</span>
-                
-                <label style={styles.switch}>
-                  <input
-                    type="checkbox"
-                    checked={pairFull.ai_mode === true}
-                    onChange={async (e) => {
-                      try {
-                        const newMode = e.target.checked;
-                        await api.post("/pair/toggle-mode", {
-                          user_id: user.user_id,
-                          ai_mode: newMode,
-                        });
-
-                        setPairFull({ ...pairFull, ai_mode: newMode });
-                      } catch {
-                        alert("Failed to toggle AI mode.");
-                      }
-                    }}
-                  />
-                  <span className="slider" style={styles.slider}></span>
-                </label>
-              </div>
-            )}
-
-            {pairBasic && (
-              <button
-                style={styles.accentButton}
-                onClick={() => nav(`/solve/${user.user_id}`)}
-              >
-                Start Today’s Task
-              </button>
-            )}
-
-            {pairError && <p style={styles.error}>{pairError}</p>}
           </div>
         )}
 
+        {/* Partner Card */}
         {pairFull && (
           <div style={styles.partnerCard}>
-            <h3 style={styles.partnerTitle}>🎉 You’re Paired!</h3>
+            <h2 style={styles.sectionTitle}>🤝 You’re Paired!</h2>
 
-            <div style={styles.row}>
-              <div style={styles.label}>Partner:</div>
-              <div>{pairFull.partner.username}</div>
+            <div style={styles.partnerInfo}>
+              <div style={styles.avatar}>
+                {pairFull.partner.username[0].toUpperCase()}
+              </div>
+
+              <div>
+                <h3 style={styles.partnerName}>
+                  {pairFull.partner.username}
+                </h3>
+
+                <p style={styles.partnerLine}>
+                  <strong>Courses:</strong> {pairFull.partner.courses.join(", ")}
+                </p>
+                <p style={styles.partnerLine}>
+                  <strong>Interests:</strong> {pairFull.partner.interests.join(", ")}
+                </p>
+
+                <p style={styles.streak}>
+                  🔥 Streak: <strong>{pairFull.streak || 0}</strong> days
+                </p>
+              </div>
             </div>
 
-            <div style={styles.row}>
-              <div style={styles.label}>Courses:</div>
-              <div>{pairFull.partner.courses.join(", ")}</div>
+            {/* AI Mode Toggle */}
+            <div style={styles.toggleContainer}>
+              <span style={styles.label}>AI Mode</span>
+              <Toggle
+                value={pairFull.ai_mode}
+                onChange={async (v) => {
+                  try {
+                    await api.post("/pair/toggle-mode", {
+                      user_id: user.user_id,
+                      ai_mode: v,
+                    });
+                    setPairFull({ ...pairFull, ai_mode: v });
+                  } catch {
+                    alert("Failed to toggle.");
+                  }
+                }}
+              />
             </div>
+          </div>
+        )}
 
-            <div style={styles.row}>
-              <div style={styles.label}>Interests:</div>
-              <div>{pairFull.partner.interests.join(", ")}</div>
-            </div>
+        {/* Today's Task CTA */}
+        {pairBasic && (
+          <div style={styles.taskCard}>
+            <h3 style={styles.taskTitle}>📘 Today’s Daily Challenge</h3>
+            <p style={styles.taskDesc}>
+              Solve one problem with your partner or using AI mode.
+            </p>
 
-            {/* UNCOMMENT THIS IF YOU WANT TO SHOW STREAK */}
-            {/* <div style={styles.streakBox}>
-              🔥 Streak: {pairFull.streak || 0} days
-            </div> */}
+            <button
+              style={styles.startButton}
+              onClick={() => nav(`/solve/${user.user_id}`)}
+            >
+              Start Task →
+            </button>
           </div>
         )}
       </div>
@@ -173,127 +176,198 @@ export default function Dashboard() {
   );
 }
 
+/* -------------------------------------------
+   Toggle Component — iOS style
+-------------------------------------------- */
+function Toggle({ value, onChange }) {
+  return (
+    <div
+      onClick={() => onChange(!value)}
+      style={{
+        width: "48px",
+        height: "26px",
+        borderRadius: "24px",
+        background: value ? "#34d399" : "#d1d5db",
+        position: "relative",
+        cursor: "pointer",
+        transition: "0.2s",
+        boxShadow: "inset 0 0 4px rgba(0,0,0,0.15)",
+      }}
+    >
+      <div
+        style={{
+          position: "absolute",
+          top: "3px",
+          left: value ? "24px" : "3px",
+          width: "20px",
+          height: "20px",
+          background: "#fff",
+          borderRadius: "50%",
+          transition: "0.2s",
+          boxShadow: "0 2px 4px rgba(0,0,0,0.2)",
+        }}
+      />
+    </div>
+  );
+}
+
+/* -------------------------------------------
+   Styles
+-------------------------------------------- */
 const styles = {
-  container: {
-    width: "80%",
-    margin: "2rem auto",
-    textAlign: "center",
+  bg: {
+    position: "fixed",
+    top: 0,
+    left: 0,
+    width: "100vw",
+    height: "100vh",
+    background:
+      "linear-gradient(135deg, #eef2ff 0%, #fdf2f8 50%, #ecfdf5 100%)",
+    zIndex: -1,
   },
 
-  heading: {
-    fontSize: "1.9rem",
-    fontWeight: 700,
-    marginBottom: "1rem",
+  container: {
+    width: "90%",
+    maxWidth: "700px",
+    margin: "2rem auto",
+  },
+
+  pageTitle: {
+    fontSize: "2rem",
+    fontWeight: 800,
+    textAlign: "center",
+    marginBottom: "1.5rem",
   },
 
   error: {
     color: "red",
+    textAlign: "center",
     marginTop: "1rem",
   },
 
-  skeletonCard: {
-    height: "200px",
-    background: "#e3e3e3",
-    borderRadius: "12px",
-    animation: "pulse 1.4s infinite",
-  },
-
-  card: {
-    background: "#ffffff",
-    padding: "1.5rem",
+  skeleton: {
+    height: "180px",
+    background: "#e5e7eb",
     borderRadius: "14px",
-    boxShadow: "0 4px 10px rgba(0,0,0,0.08)",
-    textAlign: "left",
+    animation: "pulse 1.5s infinite",
   },
 
-  cardTitle: {
+  profileCard: {
+    background: "#fff",
+    padding: "2rem",
+    borderRadius: "14px",
+    boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+    marginBottom: "1.5rem",
+  },
+
+  partnerCard: {
+    background: "#ffffff",
+    padding: "2rem",
+    borderRadius: "14px",
+    boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+    marginBottom: "1.5rem",
+  },
+
+  sectionTitle: {
     fontSize: "1.4rem",
-    fontWeight: 600,
-    marginBottom: "1rem",
+    fontWeight: 700,
+    marginBottom: "1.2rem",
   },
 
-  row: {
+  profileRow: {
     display: "flex",
+    justifyContent: "space-between",
     marginBottom: "0.6rem",
-    gap: "0.5rem",
   },
 
   label: {
     fontWeight: 600,
-    minWidth: "100px",
+    opacity: 0.8,
   },
 
-  toggleRow: {
+  primary: {
     marginTop: "1rem",
+    width: "100%",
+    padding: "0.9rem",
+    background: "#3b82f6",
+    color: "#fff",
+    border: "none",
+    borderRadius: "12px",
+    cursor: "pointer",
+    fontWeight: 600,
+    fontSize: "1rem",
+  },
+
+  partnerInfo: {
     display: "flex",
     alignItems: "center",
     gap: "1rem",
-  },
-
-  primaryButton: {
-    marginTop: "1.5rem",
-    width: "100%",
-    padding: "0.8rem",
-    background: "#3b82f6",
-    color: "#fff",
-    borderRadius: "10px",
-    border: "none",
-    cursor: "pointer",
-    fontWeight: 600,
-  },
-
-  accentButton: {
-    marginTop: "1rem",
-    padding: "0.8rem",
-    width: "100%",
-    background: "#10b981",
-    color: "#fff",
-    border: "none",
-    borderRadius: "10px",
-    cursor: "pointer",
-    fontWeight: 600,
-  },
-
-  partnerCard: {
-    marginTop: "2rem",
-    background: "#effdf5",
-    padding: "1.5rem",
-    borderRadius: "14px",
-    boxShadow: "0 4px 10px rgba(0,0,0,0.08)",
-    textAlign: "left",
-  },
-
-  partnerTitle: {
-    fontSize: "1.4rem",
-    fontWeight: 700,
     marginBottom: "1rem",
   },
 
-  switch: {
-    position: "relative",
-    display: "inline-block",
-    width: "48px",
-    height: "24px",
+  avatar: {
+    width: "55px",
+    height: "55px",
+    background: "#3b82f6",
+    color: "#fff",
+    borderRadius: "50%",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    fontSize: "1.5rem",
+    fontWeight: 700,
   },
 
-  slider: {
-    position: "absolute",
-    cursor: "pointer",
-    top: "0",
-    left: "0",
-    right: "0",
-    bottom: "0",
-    backgroundColor: "#ccc",
-    transition: ".4s",
-    borderRadius: "24px",
+  partnerName: {
+    margin: 0,
+    fontSize: "1.3rem",
+    fontWeight: 700,
   },
 
-  streakBox: {
-    marginTop: "1rem",
-    padding: "0.7rem",
-    background: "#fef3c7",
-    borderRadius: "8px",
-    fontWeight: 600,
+  partnerLine: {
+    marginTop: "4px",
+    opacity: 0.8,
+  },
+
+  streak: {
+    marginTop: "0.5rem",
+    fontSize: "1.1rem",
+  },
+
+  toggleContainer: {
+    marginTop: "1.4rem",
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+
+  taskCard: {
+    background: "#f0f9ff",
+    padding: "1.5rem",
+    borderRadius: "14px",
     textAlign: "center",
-  }
+    boxShadow: "0 4px 12px rgba(0,0,0,0.06)",
+  },
+
+  taskTitle: {
+    fontSize: "1.3rem",
+    fontWeight: 700,
+  },
+
+  taskDesc: {
+    marginTop: "0.5rem",
+    opacity: 0.8,
+    fontSize: "0.95rem",
+  },
+
+  startButton: {
+    marginTop: "1rem",
+    padding: "0.8rem 1.4rem",
+    background: "#10b981",
+    color: "#fff",
+    borderRadius: "10px",
+    border: "none",
+    cursor: "pointer",
+    fontWeight: 600,
+  },
 };
