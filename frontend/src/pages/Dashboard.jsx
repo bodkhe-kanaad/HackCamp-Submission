@@ -103,6 +103,38 @@ export default function Dashboard() {
               </button>
             )}
 
+            {/* If paired → AI toggle */}
+            {pairBasic && pairFull && (
+              <div style={{ marginTop: "1.5rem" }}>
+                <label style={{ fontWeight: "bold" }}>
+                  AI Mode:
+                  <input
+                    type="checkbox"
+                    checked={pairFull.ai_mode === true}
+                    onChange={async (e) => {
+                      const newMode = e.target.checked;
+                      try {
+                        await api.post("/pair/toggle-mode", {
+                          user_id: user.user_id,
+                          ai_mode: newMode
+                        });
+
+                        // update UI immediately
+                        setPairFull({
+                          ...pairFull,
+                          ai_mode: newMode
+                        });
+                      } catch (err) {
+                        console.error(err);
+                        alert("Failed to toggle AI mode.");
+                      }
+                    }}
+                    style={{ marginLeft: "0.75rem" }}
+                  />
+                </label>
+              </div>
+            )}
+
             {/* If paired → show task button */}
             {pairBasic && (
               <button
