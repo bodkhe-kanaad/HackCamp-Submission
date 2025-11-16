@@ -1,0 +1,622 @@
+{
+  "CPSC_110": {
+    "WEEK_1": [
+      "Understand the systematic design process",
+      "Apply the one task one function rule",
+      "Design programs for moderately complex tasks"
+    ],
+    "WEEK_2": [
+      "Write readable and well organized code",
+      "Document programs clearly",
+      "Construct effective tests for programs"
+    ],
+    "WEEK_3": [
+      "Relate information to appropriate data representations",
+      "Design data representations for moderately complex problems",
+      "Describe the information encoded in a data definition"
+    ],
+    "WEEK_4": [
+      "Identify correspondences between data definitions and program structure",
+      "Predict how changes to a data definition affect related programs"
+    ],
+    "WEEK_5": [
+      "Recognize repeated code suitable for abstraction",
+      "Create abstractions that replace repetitive code",
+      "Use existing libraries or code to design new programs"
+    ],
+    "WEEK_6": [
+      "Interpret non code models of a program",
+      "Map non code models to program structure",
+      "Use non code models to guide program design"
+    ]
+  },
+
+  "CPSC_210": {
+    "WEEK_1": [
+      "Identify data abstractions from a small problem description",
+      "Specify behaviors for chosen abstractions",
+      "Write unit tests that validate specification before coding"
+    ],
+    "WEEK_2": [
+      "Implement programs in Java using appropriate abstraction structures",
+      "Make implementation choices for internal program design",
+      "Achieve basic code coverage using test driven design"
+    ],
+    "WEEK_3": [
+      "Apply object oriented design principles including coupling, cohesion and single responsibility",
+      "Use substitution principles and basic design patterns",
+      "Design robust software using modular components"
+    ],
+    "WEEK_4": [
+      "Analyze an existing codebase using static and dynamic modeling",
+      "Identify design idioms and design patterns within code",
+      "Interpret behavior and structure of medium sized programs"
+    ],
+    "WEEK_5": [
+      "Evolve an existing codebase by extending or modifying behavior",
+      "Use alteration, subtyping or composition to implement changes",
+      "Maintain program integrity while evolving architecture"
+    ],
+    "WEEK_6": [
+      "Detect common structural issues in codebases",
+      "Select and apply appropriate refactorings",
+      "Improve code clarity and structure through systematic changes"
+    ],
+    "WEEK_7": [
+      "Communicate implementation choices clearly",
+      "Explain rationale behind design decisions",
+      "Demonstrate program behavior orally through code walkthroughs"
+    ]
+  }, 
+  "CPSC_310": {
+    "WEEK_1": [
+      "Evaluate software engineering processes and justify their tradeoffs",
+      "Identify functional requirements and quality attributes from a problem description",
+      "Describe requirements succinctly and precisely"
+    ],
+    "WEEK_2": [
+      "Refine and deconstruct functional requirements",
+      "Formulate complete and precise quality attribute specifications",
+      "Differentiate between functional and nonfunctional requirements"
+    ],
+    "WEEK_3": [
+      "Devise high level software designs for given requirements",
+      "Devise low level software designs aligned with future evolutionary needs",
+      "Justify design choices with respect to requirements and constraints"
+    ],
+    "WEEK_4": [
+      "Iteratively derive implementations from a design of moderate complexity",
+      "Identify emergent design implications during implementation",
+      "Apply code level restructuring to facilitate future changes"
+    ],
+    "WEEK_5": [
+      "Implement software designs while considering ethical implications",
+      "Incorporate security considerations into code level decisions",
+      "Apply appropriate software process and methodological approaches"
+    ],
+    "WEEK_6": [
+      "Independently learn modern and unfamiliar technologies",
+      "Apply new tools and language stacks to solve engineering problems",
+      "Integrate unfamiliar technologies into an existing system"
+    ],
+    "WEEK_7": [
+      "Validate software systems using black box testing",
+      "Validate software systems using white box testing",
+      "Reason about and improve system quality through systematic validation"
+    ]
+  },
+  "CPSC_221": {
+    "WEEK_1": [
+      "Analyze linear algorithm performance",
+      "Prove correctness of linear algorithms",
+      "Evaluate design choices in simple algorithmic solutions"
+    ],
+    "WEEK_2": [
+      "Explain linear sorting methods",
+      "Implement linked lists, stacks, and queues",
+      "Compare tradeoffs of basic linear data structures"
+    ],
+    "WEEK_3": [
+      "Analyze recursive algorithm performance",
+      "Prove correctness of recursive algorithms",
+      "Design recursive solutions to computational problems"
+    ],
+    "WEEK_4": [
+      "Apply recursive sorting techniques",
+      "Describe fundamental tree concepts",
+      "Construct simple tree based structures"
+    ],
+    "WEEK_5": [
+      "Perform standard tree traversals",
+      "Implement binary search trees",
+      "Evaluate correctness and efficiency of BST operations"
+    ],
+    "WEEK_6": [
+      "Implement balanced binary search trees",
+      "Analyze rotation based balancing mechanisms",
+      "Compare balanced and unbalanced tree performance"
+    ],
+    "WEEK_7": [
+      "Explain B tree structure and invariants",
+      "Implement core B tree operations",
+      "Analyze performance properties of B trees"
+    ],
+    "WEEK_8": [
+      "Describe hashing principles",
+      "Implement hash table operations",
+      "Evaluate collision resolution strategies"
+    ],
+    "WEEK_9": [
+      "Implement priority queues and heaps",
+      "Apply heapsort algorithm",
+      "Analyze heap based algorithmic tradeoffs"
+    ],
+    "WEEK_10": [
+      "Implement disjoint set structures",
+      "Apply union find operations",
+      "Define core graph terminology"
+    ],
+    "WEEK_11": [
+      "Implement graph representations",
+      "Perform graph traversals such as BFS and DFS",
+      "Analyze structural properties revealed through traversal"
+    ],
+    "WEEK_12": [
+      "Compute minimum spanning trees",
+      "Apply shortest path algorithms",
+      "Compare algorithmic guarantees for MST and shortest path methods"
+    ]
+  },
+  "CPSC_320": {
+    "WEEK_1": [
+      "Formulate clear computational problems from vague descriptions",
+      "Recognize when algorithmic problem formulation is incomplete",
+      "Translate informal tasks into precise algorithmic goals"
+    ],
+    "WEEK_2": [
+      "Identify algorithm design techniques such as brute force, divide and conquer, greedy, and dynamic programming",
+      "Classify a given algorithm by its underlying design technique",
+      "Explain why a particular design strategy matches a given problem"
+    ],
+    "WEEK_3": [
+      "Evaluate which algorithm design techniques can solve a problem efficiently",
+      "Select appropriate data structures to support algorithmic solutions",
+      "Justify the efficiency of chosen strategies"
+    ],
+    "WEEK_4": [
+      "Implement solutions based on specified design techniques",
+      "Translate high level algorithm strategies into working implementations",
+      "Debug and validate algorithmic implementations for correctness"
+    ],
+    "WEEK_5": [
+      "Apply asymptotic notation to analyze running time",
+      "Use recurrence relations to derive time bounds",
+      "Establish upper and lower running time bounds for algorithms"
+    ],
+    "WEEK_6": [
+      "Identify similarities between new problems and known problems",
+      "Leverage structural similarities to design new algorithms",
+      "Assess whether known techniques generalize to new problem settings"
+    ],
+    "WEEK_7": [
+      "Apply NP completeness theory to classify computational problems",
+      "Provide evidence that certain problems lack efficient algorithms",
+      "Determine when reductions can demonstrate computational hardness"
+    ]
+  },
+  "MATH_100": {
+    "WEEK_1": [
+      "Compare growth of power, logarithmic, exponential, and trigonometric functions",
+      "Sketch basic curves using key function properties",
+      "Understand the concept of a limit"
+    ],
+    "WEEK_2": [
+      "Evaluate limits and identify horizontal and vertical asymptotes",
+      "Determine continuity of functions",
+      "Compute slopes of lines and relate them to rates of change"
+    ],
+    "WEEK_3": [
+      "Define and compute derivatives",
+      "Find tangent lines and linear approximations",
+      "Apply properties of the exponential function"
+    ],
+    "WEEK_4": [
+      "Apply linearity, power, product, and quotient rules for derivatives",
+      "Differentiate trigonometric functions",
+      "Use rules of differentiation to compute complex derivatives"
+    ],
+    "WEEK_5": [
+      "Apply the chain rule to composite functions",
+      "Use logarithmic differentiation",
+      "Perform implicit differentiation"
+    ],
+    "WEEK_6": [
+      "Differentiate inverse trigonometric functions",
+      "Apply derivatives of inverse trigonometric functions",
+      "Prepare for and complete Test 1"
+    ],
+    "WEEK_7": [
+      "Solve related rates problems",
+      "Apply l’Hôpital’s rule to evaluate indeterminate limits"
+    ],
+    "WEEK_8": [
+      "Sketch graphs using derivatives",
+      "Analyze functions via curve sketching techniques"
+    ],
+    "WEEK_9": [
+      "Solve optimization problems",
+      "Apply linear approximation in practical contexts"
+    ],
+    "WEEK_10": [
+      "Construct higher degree approximations",
+      "Understand Taylor polynomial behavior"
+    ],
+    "WEEK_11_A": [
+      "Analyze error in Taylor polynomials"
+    ],
+    "WEEK_11_B": [
+      "Verify solutions of differential equations",
+      "Solve initial value problems",
+      "Solve first order linear differential equations",
+      "Interpret slope fields"
+    ],
+    "WEEK_11_C": [
+      "Introduce multivariable functions",
+      "Compute partial derivatives"
+    ],
+    "WEEK_12": [
+      "Complete Test 2",
+      "Apply Newton’s method or Euler’s method depending on section",
+      "Optimize functions of two variables"
+    ],
+    "WEEK_13_A": [
+      "Verify and analyze solutions of differential equations",
+      "Solve initial value problems",
+      "Analyze qualitative behavior of differential equations"
+    ],
+    "WEEK_13_B": [
+      "Analyze differential equations qualitatively",
+      "Interpret phase portraits",
+      "Study logistic population models"
+    ],
+    "WEEK_13_C": [
+      "Perform constrained optimization",
+      "Apply introductory Lagrange multiplier methods"
+    ],
+    "WEEK_14_A": [
+      "Use numerical methods for differential equations"
+    ],
+    "WEEK_14_B": [
+      "Model disease dynamics",
+      "Solve tank mixing problems"
+    ],
+    "WEEK_14_C": [
+      "Apply the method of Lagrange multipliers to constrained problems"
+    ]
+},
+  "MATH_101": {
+    "WEEK_1": [
+      "Interpret definite integrals as signed area",
+      "Compute area functions using geometry",
+      "Approximate areas using Riemann sums and trapezoidal rule",
+      "Sketch area functions",
+      "Apply the Fundamental Theorem of Calculus Part 1",
+      "Differentiate functions defined by integrals",
+      "Manipulate sigma notation and express sums symbolically"
+    ],
+    "WEEK_2": [
+      "Use arithmetic and endpoint properties of definite integrals",
+      "Define indefinite integrals and distinguish them from definite integrals",
+      "Apply the Fundamental Theorem of Calculus Part 2",
+      "Find antiderivatives of basic and composite functions",
+      "Solve applied problems requiring integration methods",
+      "Derive and apply Leibniz’s rule"
+    ],
+    "WEEK_3": [
+      "Relate substitution to the chain rule",
+      "Evaluate integrals using substitution for definite and indefinite cases",
+      "Choose effective substitutions for simplifying integrals",
+      "Compute integrals requiring algebraic manipulation",
+      "Evaluate trigonometric integrals using identities"
+    ],
+    "WEEK_4": [
+      "Differentiate between direct and inverse substitution",
+      "Apply trigonometric substitution to compute integrals",
+      "Select appropriate trigonometric substitutions based on structure",
+      "Use partial fractions to integrate rational functions",
+      "Express volumes using definite integrals",
+      "Compute volumes using disks and cross sections"
+    ],
+    "WEEK_5": [
+      "Apply integration by parts to definite and indefinite integrals",
+      "Identify when integration by parts is appropriate",
+      "Select effective choices for u and dv"
+    ],
+    "WEEK_6": [
+      "Identify functions without elementary antiderivatives",
+      "Explain the meaning of well defined integrals for such functions",
+      "Approximate integrals using trapezoidal and Simpson’s rules",
+      "Compute and estimate numerical integration error",
+      "Determine subinterval counts needed for specified tolerances",
+      "Apply numerical integration when explicit formulas are unavailable"
+    ],
+    "WEEK_7": [
+      "Verify solutions of ordinary differential equations",
+      "Determine when a differential equation is separable",
+      "Solve separable differential equations and initial value problems",
+      "Analyze linear ODEs of the form y' = my + c",
+      "Model real world processes using differential equations"
+    ],
+    "WEEK_8": [
+      "Identify and classify types of improper integrals",
+      "Interpret improper integrals graphically and via limits",
+      "Evaluate improper integrals using limit definitions",
+      "Apply comparison and limit comparison tests",
+      "Define and use probability density functions"
+    ],
+    "WEEK_9": [
+      "Determine parameters using PDF properties",
+      "Interpret PDFs probabilistically",
+      "Define and compute expected value",
+      "Define and compute variance and standard deviation",
+      "Use intuition to reason about expected value relative to distribution shape"
+    ],
+    "WEEK_10": [
+      "Define sequences, series, and partial sums",
+      "Find sequence limits or determine divergence",
+      "Classify and evaluate geometric series",
+      "Apply divergence and integral tests",
+      "Approximate series sums using integral test bounds"
+    ],
+    "WEEK_11": [
+      "Apply comparison and limit comparison tests to series",
+      "Use the ratio test and recognize when it is inconclusive",
+      "Apply the alternating series test",
+      "Distinguish absolute and conditional convergence"
+    ],
+    "WEEK_12": [
+      "Define power series and radius of convergence",
+      "Compute radius and interval of convergence",
+      "Perform termwise operations on power series",
+      "Derive new power series from known ones",
+      "Define and identify Taylor series for standard functions",
+      "Use Taylor series to compute limits"
+    ],
+    "WEEK_13": [
+      "Estimate error in Taylor polynomial approximations",
+      "Use Taylor series to approximate function values",
+      "Apply alternating series error bounds"
+    ]
+  },
+  "BIOL_111": {
+    "WEEK_1": [
+      "Understand the scientific method",
+      "Identify characteristics of life and major themes in biology",
+      "Explain Darwin’s voyage and evolution by natural selection",
+      "Describe evidence for evolution",
+      "Interpret the phylogenetic tree of life"
+    ],
+    "WEEK_2": [
+      "Explain mechanisms of evolution beyond natural selection",
+      "Differentiate species concepts and nomenclature",
+      "Describe species and speciation",
+      "Analyze species interactions and ecological niches",
+      "Explain symbiosis and predation"
+    ],
+    "WEEK_3": [
+      "Describe adaptation to the environment",
+      "Explain community ecology and food webs",
+      "Understand chemistry of water and basic biological chemistry",
+      "Describe organic molecules including carbohydrates and lipids",
+      "Explain protein structure and DNA"
+    ],
+    "WEEK_4": [
+      "Describe biological diversity and prokaryotic cell structure",
+      "Explain eukaryotic cell structure",
+      "Explain endosymbiotic theory",
+      "Describe cytoskeleton structure and function"
+    ],
+    "WEEK_5": [
+      "Summarize major events in Earth’s biological history"
+    ],
+    "WEEK_6": [
+      "Explain laws of thermodynamics and ATP function",
+      "Describe membrane transport mechanisms",
+      "Explain enzyme structure and function"
+    ],
+    "WEEK_7": [
+      "Describe neuron structure and function",
+      "Explain neurotransmission and synaptic signaling",
+      "Explain cellular signal transduction pathways"
+    ],
+    "WEEK_8": [
+      "Explain DNA structure and mitosis",
+      "Describe mechanisms of cancer",
+      "Explain meiosis and sources of genetic diversity",
+      "Apply Mendelian genetics"
+    ],
+    "WEEK_9": [
+      "Apply Mendelian genetics principles",
+      "Explain the central dogma of molecular biology"
+    ],
+    "WEEK_10": [
+      "Describe virus structure and replication",
+      "Explain gene expression and regulation"
+    ],
+    "WEEK_11": [
+      "Explain recombinant DNA technology",
+      "Describe DNA sequencing and PCR",
+      "Explain photosynthesis and cellular respiration"
+    ],
+    "WEEK_12": [
+      "Describe ecosystem ecology",
+      "Explain nutrient cycling",
+      "Explain climate change impacts",
+      "Review course concepts"
+    ]
+  },
+  "BIOL_121": {
+    "WEEK_1": [
+      "Explain gene and chromosome structure",
+      "Describe the role of chromosomes in heredity",
+      "Interpret basic genetic terminology"
+    ],
+    "WEEK_2": [
+      "Describe cell cycle stages including mitosis",
+      "Explain meiosis and its role in generating variation",
+      "Compare mitosis and meiosis"
+    ],
+    "WEEK_3": [
+      "Apply Mendelian principles to inheritance problems",
+      "Predict genetic outcomes using Punnett analysis"
+    ],
+    "WEEK_4": [
+      "Analyze pedigrees to infer inheritance patterns",
+      "Apply Mendelian rules to human genetic cases"
+    ],
+    "WEEK_5": [
+      "Review genetics concepts in preparation for Midterm 1"
+    ],
+    "WEEK_6": [
+      "Explain evolutionary processes that change allele frequencies",
+      "Describe how mutation, drift, selection and gene flow shape populations"
+    ],
+    "WEEK_7": [
+      "Explain natural selection and its consequences",
+      "Apply evolutionary mechanisms to predict lineage changes"
+    ],
+    "WEEK_8": [
+      "Interpret phylogenetic trees",
+      "Explain speciation mechanisms and species concepts"
+    ],
+    "WEEK_9": [
+      "Review evolution concepts in preparation for Midterm 2"
+    ],
+    "WEEK_10": [
+      "Explain ecological principles at organism and population levels",
+      "Predict population dynamics using ecological models"
+    ],
+    "WEEK_11": [
+      "Describe community structure and species interactions",
+      "Analyze ecological interactions within communities"
+    ],
+    "WEEK_12": [
+      "Explain ecosystem processes and energy flow",
+      "Describe biome level patterns and environmental influences"
+    ],
+    "WEEK_13": [
+      "Apply ecological concepts to the Great Bear Rainforest case",
+      "Synthesize course concepts in a final review"
+    ]
+  },
+  "CHEM_121": {
+    "WEEK_1": [
+      "Distinguish covalent, polar covalent, and ionic bonding",
+      "Draw Lewis structures for polyatomic species",
+      "Represent resonance structures accurately",
+      "Assign formal charges, oxidation states, and partial charges"
+    ],
+    "WEEK_2": [
+      "Predict molecular shapes using VSEPR",
+      "Determine molecular polarity",
+      "Relate shape to physical and chemical properties"
+    ],
+    "WEEK_3": [
+      "Describe wave-like properties of matter",
+      "Apply probability concepts to electrons",
+      "Recognize when electrons behave as waves",
+      "Explain the Heisenberg uncertainty principle",
+      "Solve basic quantum mechanical particle-in-a-box problems"
+    ],
+    "WEEK_4": [
+      "Analyze one-electron atomic species",
+      "Interpret orbital diagrams for s, p, and d orbitals",
+      "Explain energy levels in one-electron species"
+    ],
+    "WEEK_5": [
+      "Describe the nature of light",
+      "Explain the photoelectric effect",
+      "Relate absorption and emission to quantum transitions",
+      "Interpret atomic spectroscopy data"
+    ],
+    "WEEK_6": [
+      "Explain electron–electron interactions in multi-electron atoms",
+      "Predict magnetic properties from electron configurations",
+      "Analyze and compare periodic trends"
+    ],
+    "WEEK_7": [
+      "Explain why MO and VB theories are needed",
+      "Construct simple MO diagrams for H2 and second-row diatomics",
+      "Apply Valence Bond Theory to bonding situations",
+      "Describe hybridization in complex systems"
+    ],
+    "WEEK_8": [
+      "Describe conjugated molecular systems",
+      "Explain the chemical origins of colour",
+      "Interpret line-bond drawings for conjugated structures"
+    ],
+    "WEEK_9": [
+      "Relate molecular structure to physical properties",
+      "Differentiate types of solids",
+      "Identify polymer characteristics",
+      "Discuss sustainability issues related to polymers",
+      "Describe polymers in biological systems"
+    ],
+    "WEEK_10": [
+      "Differentiate natural and synthetic chemicals",
+      "Outline steps in pharmaceutical drug development",
+      "Evaluate chemistry’s role in sustainability",
+      "Describe careers and roles of chemists"
+    ]
+  },
+  "CHEM_123": {
+    "WEEK_1": [
+      "Interpret phase diagrams for one component systems",
+      "Identify phase transitions and equilibrium points on phase diagrams"
+    ],
+    "WEEK_2": [
+      "Define equilibrium constants for chemical and physical changes",
+      "Relate equilibrium constants to activities",
+      "Apply Hess’s law to thermochemical equations",
+      "Explain energy, work, and the first law of thermodynamics"
+    ],
+    "WEEK_3": [
+      "Explain entropy and the second and third laws of thermodynamics",
+      "Predict spontaneity using entropy changes",
+      "Interpret standard entropy values"
+    ],
+    "WEEK_4": [
+      "Relate free energy to equilibrium constants",
+      "Predict spontaneity from Gibbs free energy",
+      "Use ΔG = ΔG° + RT ln Q to evaluate reaction conditions",
+      "Apply the Nernst equation to electrochemical systems"
+    ],
+    "WEEK_5": [
+      "Interpret reaction coordinate diagrams",
+      "Determine rate laws for first and second order reactions",
+      "Predict how temperature, concentration, and activation energy affect reaction rates"
+    ],
+    "WEEK_6": [
+      "Calculate pH of weak acids, bases, and their salts",
+      "Evaluate breakdowns in common equilibrium approximations",
+      "Design and analyze buffer solutions"
+    ],
+    "WEEK_7": [
+      "Identify hydrocarbon isomers and analyze physical properties",
+      "Apply IUPAC nomenclature for hydrocarbons",
+      "Perform conformational analysis for alkanes and cyclohexane"
+    ],
+    "WEEK_8": [
+      "Identify and classify organic functional groups",
+      "Apply nomenclature rules to functional group containing molecules",
+      "Describe stereochemical concepts including enantiomers and diastereomers",
+      "Assign absolute configurations and analyze optical activity",
+      "Differentiate cis trans isomers"
+    ],
+    "WEEK_9": [
+      "Explain SN1 and SN2 reaction mechanisms",
+      "Predict factors affecting substitution reaction pathways",
+      "Analyze stereochemical outcomes of SN1 and SN2 reactions"
+    ]
+  }
+}
