@@ -57,24 +57,29 @@ def get_leaderboard():
     conn = get_connection()
     cur = conn.cursor()
 
-    cur.execute(
-        """
-        SELECT pair_id, user1, user2, streak
-        FROM "Pair"
-        ORDER BY streak DESC, pair_id ASC;
-        """
-    )
+    # Get usernames + streak sorted by streak DESC
+    cur.execute("""
+        SELECT 
+            P.pair_id,
+            u1.username AS username1,
+            u2.username AS username2,
+            P.streak
+        FROM "Pair" P
+        LEFT JOIN users u1 ON P.user1 = u1.user_id
+        LEFT JOIN users u2 ON P.user2 = u2.user_id
+        ORDER BY P.streak DESC, P.pair_id ASC;
+    """)
+
     rows = cur.fetchall()
 
     cur.close()
     conn.close()
 
     leaderboard = []
-    for pair_id, user1, user2, streak in rows:
+    for pair_id, username1, username2, streak in rows:
         leaderboard.append({
             "pair_id": pair_id,
-            "user1": user1,
-            "user2": user2,
+            "names": f"{username1} & {username2}",
             "streak": streak
         })
 

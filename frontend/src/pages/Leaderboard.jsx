@@ -1,23 +1,42 @@
 import Navbar from "../components/Navbar";
 import { useNavigate } from "react-router-dom"; 
 import "./css/leaderboard.css";
-
+import { useState, useEffect } from "react";
 import medal from './medalImg/medal.png'; // Assuming medal.png is gold (Rank 1)
 import silverMedal from './medalImg/medalSilver.png'; // Assuming medal (1).png is silver (Rank 2)
 import bronzeMedal from './medalImg/medalBronze.png';
-
+import { api } from "../services/api";
 // The 'styles' object must be defined at the bottom of the file
 // to be accessed globally within the file.
 
 export default function Leaderboard() {
   const nav = useNavigate(); 
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    async function loadLeaderboard() {
+      try {
+        const res = await api.get("/leaderboard"); // Fetch from API
+        const leaderboard = res.data;
 
+        // Add rank as a counter
+        const ranked = leaderboard.map((pair, index) => ({
+          rank: index + 1,
+          ...pair, // contains names, pair_id, streak
+        }));
+
+        setUsers(ranked);
+      } catch (err) {
+        console.error("Failed to load leaderboard", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadLeaderboard();
+  }, []);
   // We'll simulate user data with random generation here
-  const users = [...Array(20)].map((_, i) => ({
-    rank: i + 1,
-    name: `User ${i + 1}`,
-    streak: Math.floor(Math.random() * 500),
-  }));
+
 
   // Function to determine medal class for the rank cell
   const getRankClass = (rank) => {
@@ -87,7 +106,7 @@ export default function Leaderboard() {
 
                 {/* NOTE: You also removed the badge display logic from the Name cell */}
                 <td>
-                  {user.name}
+                  {user.names}
                 </td>
 
                 <td>{user.streak}</td>
