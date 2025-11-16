@@ -1,3 +1,4 @@
+from db import get_connection
 from backend.db import get_connection
 
 def authenticate_user(username, password):
@@ -6,7 +7,7 @@ def authenticate_user(username, password):
 
     # teammate will make the correct table and insert data
     cur.execute(
-        "SELECT id FROM users WHERE username = %s AND password = %s;",
+        "SELECT user_id FROM users WHERE username = %s AND password = %s;",
         (username, password)
     )
 
