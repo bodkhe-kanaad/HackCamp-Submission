@@ -1,124 +1,137 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import { api } from "../services/api";
-import { useNavigate } from "react-router-dom";
-import "./css/dashboard.css";
 
 export default function Dashboard() {
   const nav = useNavigate();
-  const userId = Number(localStorage.getItem("userId"));
 
-  const [partner, setPartner] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState(null);
+  const [match, setMatch] = useState(null);
+  const [loadingUser, setLoadingUser] = useState(true);
+  const [loadingPair, setLoadingPair] = useState(false);
+  const [error, setError] = useState("");
+  const [pairError, setPairError] = useState("");
 
-  // Load pairing status on page load
   useEffect(() => {
-    const loadPartner = async () => {
+    async function fetchUser() {
+      setLoadingUser(true);
+
+      const id = localStorage.getItem("user_id");
+      if (!id) {
+        setError("No user ID found. Please sign in again.");
+        setLoadingUser(false);
+        return;
+      }
+
       try {
-        const res = await api.get(`/pair/${userId}`);
-        if (res.data.paired) {
-          setPartner(res.data.partner_id);
-        } else {
-          setPartner(null);
-        }
+        const res = await api.get(`/user/${id}`);
+        setUser(res.data);
       } catch (err) {
         console.error(err);
-      } finally {
-        setLoading(false);
+        setError("Could not load profile. Backend offline?");
       }
-    };
 
-    loadPartner();
-  }, [userId]);
+      setLoadingUser(false);
+    }
 
-  // Pair Me button
-  const handlePair = async () => {
+    async function fetchPairStatus() {
+      const id = localStorage.getItem("user_id");
+      if (!id) return;
+
+      try {
+        const res = await api.get(`/pair/status/${id}`);
+        if (res.data.pair_id !== null) {
+          setMatch(res.data);
+        }
+      } catch (err) {
+        console.error("Pair status error:", err);
+      }
+    }
+
+    fetchUser();
+    fetchPairStatus();
+  }, []);
+
+  async function handlePair() {
+    setPairError("");
+    setLoadingPair(true);
+
+    const id = localStorage.getItem("user_id");
+
     try {
-      const res = await api.post("/pair", { user_id: userId });
-      if (res.data.paired) {
-        setPartner(res.data.partner_id);
-      } else {
-        alert("No partner available yet");
-      }
+      const res = await api.post("/pair", { user_id: id });
+      setMatch(res.data);
     } catch (err) {
       console.error(err);
+      setPairError("Pairing failed. Try again later.");
     }
-  };
 
-  // Unpair
-  const handleUnpair = async () => {
-    try {
-      await api.post("/unpair", { user_id: userId });
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setPartner(null);
-    }
-  };
-
-  if (loading) return <div className="dash-loading">Loading dashboard...</div>;
+    setLoadingPair(false);
+  }
 
   return (
     <>
-      <Navbar center="Dashboard" />
+      <Navbar />
 
-      <main className="dash-root">
-        <aside className="dash-hero">
-          <h1 className="dash-hero-title">Welcome to PairUp</h1>
-          <p className="dash-hero-sub">Pair. Learn. Streak.</p>
-        </aside>
+      <div style={styles.container}>
+        <h2>Your Dashboard</h2>
 
-        <section className="dash-panel">
-          <div className="card duo-card">
-            <h3 className="card-title">Your Study Buddy</h3>
+        {loadingUser ? (
+          <p>Loading profile...</p>
+        ) : error ? (
+          <p style={{ color: "red" }}>{error}</p>
+        ) : (
+          <div style={styles.card}>
+            <h3>Hello, {user.username} 👋</h3>
 
-            {partner ? (
-              <div className="partner-wrap">
-                <div className="partner-info">
-                  <div className="avatar">{String(partner)[0]}</div>
-                  <div>
-                    <div className="partner-name">User #{partner}</div>
-                    <div className="partner-meta">Ready to code together</div>
-                  </div>
-                </div>
+            <p><strong>Courses:</strong> {user.courses.join(", ")}</p>
+            <p><strong>Interests:</strong> {user.interests.join(", ")}</p>
 
-                <div className="card-actions">
-                  <button className="btn btn-unpair" onClick={handleUnpair}>
-                    Unpair
-                  </button>
-                  <button
-                    className="btn btn-chat"
-                    onClick={() => nav(`/solve/${partner}`)}
-                  >
-                    View Partner's Problem
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <div className="no-partner">
-                <p className="muted">You don't have a study buddy yet.</p>
-                <button className="btn btn-primary" onClick={handlePair}>
-                  Pair Me
-                </button>
-              </div>
-            )}
-          </div>
-
-          <div className="card challenge-card">
-            <h3 className="card-title">Today's Challenge</h3>
-            <p className="muted">A curated problem to practice with your buddy.</p>
-            <div className="card-actions">
+            {/* Unpaired → show Pair Me */}
+            {!match && (
               <button
-                className="btn btn-gradient"
-                onClick={() => nav(`/solve/${userId}`)}
+                style={styles.btn}
+                onClick={handlePair}
+                disabled={loadingPair}
               >
-                Load Today's Question
+                {loadingPair ? "Pairing..." : "Pair Me"}
               </button>
-            </div>
+            )}
+
+            {/* Paired → show Today's Task */}
+            {match && (
+              <button
+                style={styles.taskBtn}
+                onClick={() => nav("/solve")}
+              >
+                Today's Task
+              </button>
+            )}
+
+            {pairError && <p style={{ color: "red" }}>{pairError}</p>}
           </div>
-        </section>
-      </main>
+        )}
+
+        {match && (
+          <div style={styles.matchCard}>
+            <h3>🎉 You’ve been paired!</h3>
+            <p><strong>Partner:</strong> {match.partner_username}</p>
+            <p><strong>Courses:</strong> {match.partner_courses.join(", ")}</p>
+            <p><strong>Interests:</strong> {match.partner_interests.join(", ")}</p>
+          </div>
+        )}
+      </div>
     </>
   );
 }
 
+const styles = {
+  container: { width: "70%", margin: "2rem auto", textAlign: "center" },
+  card: { background: "#f5f5f5", padding: "1.5rem", borderRadius: "12px", marginBottom: "1.5rem" },
+  btn: { background: "#3b82f6", color: "#fff", padding: "0.75rem", borderRadius: "10px",
+         border: "none", cursor: "pointer", marginTop: "1rem" },
+  taskBtn: { background: "#10b981", color: "#fff", padding: "0.75rem",
+             borderRadius: "10px", border: "none", cursor: "pointer", marginTop: "1rem" },
+  matchCard: { background: "#d1fae5", padding: "1.5rem", borderRadius: "12px", marginTop: "2rem" }
+};

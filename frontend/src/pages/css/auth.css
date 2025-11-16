@@ -1,0 +1,175 @@
+:root{
+  --primary: #006078;
+  --bg: #FAEFED;
+  --accent: #E37C78;
+  --accent-soft: #FFD4D1;
+  --muted: #82BAC4;
+  --text: #07282a;
+  --card-bg: #ffffff;
+}
+
+/* ensure the page fills the viewport so flex centering works reliably */
+html, body, #root {
+  height: 100%;
+  margin: 0;
+}
+
+/* page wrapper: center vertically & horizontally */
+.auth-wrapper{
+  /* use full viewport height to guarantee perfect vertical centering */
+  position: fixed;
+  inset: 0;                     /* top:0; right:0; bottom:0; left:0 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: linear-gradient(180deg, var(--bg), #ffffff);
+  box-sizing: border-box;
+  z-index: 9999;                /* stay on top of other layout elements */
+}
+
+/* ensure card has a max width and is centered inside wrapper */
+.signup-card, .signin-card {
+  width: 100%;
+  max-width: 520px;
+  margin: 0 auto;
+  background: var(--card-bg);
+  border-radius: 12px;
+  padding: 32px;
+  box-shadow: 0 16px 40px rgba(2,12,14,0.06);
+  box-sizing: border-box;
+  color: var(--text);
+}
+
+/* header */
+.card-title {
+  margin: 0 0 6px 0;
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--primary);
+}
+.muted {
+  margin: 0 0 18px 0;
+  color: rgba(7,40,42,0.75);
+  font-size: 14px;
+}
+
+/* form fields */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.field-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+}
+.text-input {
+  height: 48px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid #eef4f4;
+  background: #fff;
+  font-size: 15px;
+  color: var(--text);
+  box-sizing: border-box;
+  outline: none;
+}
+.text-input::placeholder { color: rgba(7,40,42,0.35); }
+.text-input:focus {
+  border-color: rgba(0,96,120,0.20);
+  box-shadow: 0 10px 30px rgba(0,96,120,0.06);
+}
+
+/* checkbox / agreement */
+.agree-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: var(--text);
+}
+
+/* actions & buttons */
+.card-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+.btn {
+  padding: 12px 16px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 14px;
+}
+.btn-primary {
+  background: linear-gradient(180deg, var(--primary), #004f55);
+  color: #fff;
+  box-shadow: 0 10px 30px rgba(0,96,120,0.12);
+}
+.btn-secondary {
+  background: var(--accent);
+  color: #fff;
+  box-shadow: 0 10px 30px rgba(227,124,120,0.12);
+}
+
+/* divider with lines */
+.divider {
+  margin-top: 18px;
+  text-align: center;
+  color: rgba(7,40,42,0.45);
+  position: relative;
+  font-size: 13px;
+}
+.divider:before,
+.divider:after {
+  content: "";
+  height: 1px;
+  background: #f0f5f5;
+  width: 36%;
+  position: absolute;
+  top: 50%;
+}
+.divider:before { left: 0; }
+.divider:after { right: 0; }
+
+/* social buttons */
+.social-row {
+  display: flex;
+  gap: 12px;
+  margin-top: 12px;
+}
+.social-btn {
+  background: #fff;
+  border: 1px solid #eef4f4;
+  color: var(--text);
+  padding: 10px 14px;
+  border-radius: 10px;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+/* input error text */
+.input-error {
+  color: var(--accent);
+  font-size: 13px;
+  margin-top: 8px;
+}
+
+/* small screens */
+@media (max-width: 640px) {
+  .signup-card, .signin-card {
+    padding: 20px;
+    max-width: 100%;
+  }
+  .card-actions { flex-direction: column; }
+  .social-row { flex-direction: column; }
+}

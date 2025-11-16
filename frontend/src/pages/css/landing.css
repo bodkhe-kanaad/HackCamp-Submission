@@ -1,0 +1,98 @@
+:root{
+  --primary:#006078;
+  --bg:#FAEFED;
+  --accent:#E37C78;
+  --accent-soft:#FFD4D1;
+  --muted:#82BAC4;
+  --text:#07282a;
+  --card-bg:#ffffff;
+}
+
+body { background: var(--bg); color: var(--text); font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; margin:0; }
+
+.landing-wrapper{
+  max-width: 1100px;
+  margin: 48px auto;
+  /* decreased horizontal padding from 28px -> 20px */
+  padding: 48px 20px;
+  display: grid;
+  grid-template-columns: 1fr 420px;
+  gap: 36px;
+  align-items: center;
+}
+
+/* Left hero */
+.landing-hero h1{
+  margin:0 0 12px 0;
+  font-size: 48px;
+  color: var(--primary);
+  line-height:1.02;
+  font-weight:800;
+  letter-spacing:-0.02em;
+}
+.landing-hero p{
+  margin:0 0 22px 0;
+  font-size:18px;
+  color: rgba(7,40,42,0.8);
+}
+
+/* CTA */
+.landing-cta{
+  background: linear-gradient(180deg,var(--primary), #004f55);
+  color: #fff;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight:700;
+  font-size:16px;
+  box-shadow: 0 10px 30px rgba(0,96,120,0.12);
+}
+.landing-cta:active{ transform: translateY(1px); }
+
+/* feature cards row */
+.landing-how{
+  margin-top: 32px;
+  display:flex;
+  gap:16px;
+  align-items:stretch;
+  justify-content:flex-start;
+  flex-wrap:wrap;
+}
+.landing-card{
+  flex: 0 0 200px;
+  background: var(--card-bg);
+  padding: 18px;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(2,12,14,0.04);
+  color: var(--text);
+  font-weight:600;
+  text-align:center;
+}
+
+/* Right panel - highlight box */
+.landing-side {
+  background: linear-gradient(180deg,var(--card-bg), #fbfbfb);
+  padding: 32px 20px;
+  border-radius: 14px;
+  box-shadow: 0 12px 36px rgba(2,12,14,0.06);
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  align-items:stretch;
+}
+
+/* small extras */
+.lead {
+  color: var(--muted);
+  font-weight:600;
+}
+
+/* responsive */
+@media (max-width: 980px){
+  .landing-wrapper{ grid-template-columns: 1fr; padding: 28px 16px; gap:20px; margin:20px auto; }
+  .landing-hero h1{ font-size:34px; text-align:center; }
+  .landing-hero p{ text-align:center; }
+  .landing-how{ justify-content:center; }
+  .landing-side{ padding:24px 16px; }
+}

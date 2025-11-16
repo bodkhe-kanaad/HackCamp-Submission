@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Navbar from "../components/Navbar";
 import { api } from "../services/api";
+import "./css/auth.css";
 
 export default function SignUp() {
   const nav = useNavigate();
@@ -12,60 +12,72 @@ export default function SignUp() {
   const [error, setError] = useState("");
 
   async function handleSignup() {
+    setError("");
     try {
-      const res = await api.post("/api/auth/register", {
+      await api.post("/api/auth/register", {
         username,
         email,
-        password
+        password,
       });
 
       // success
       nav("/signin");
     } catch (err) {
+      console.error(err);
       setError("Signup failed. Check backend.");
     }
   }
 
   return (
-    <>
-      <Navbar />
+    <div className="auth-wrapper">
+      <div className="signup-card">
+        <h2 className="card-title">Create Your Account</h2>
+        <p className="muted">Sign up to get started</p>
 
-      <div style={styles.card}>
-        <h2>Create Your Account</h2>
+        <div className="signup-form">
+          <label className="field">
+            <div className="field-label">Username</div>
+            <input
+              className="text-input"
+              placeholder="Username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+            />
+          </label>
 
-        <input placeholder="Username" style={styles.input} value={username}
-               onChange={e => setUsername(e.target.value)} />
+          <label className="field">
+            <div className="field-label">Email</div>
+            <input
+              className="text-input"
+              placeholder="you@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+          </label>
 
-        <input placeholder="Email" style={styles.input} value={email}
-               onChange={e => setEmail(e.target.value)} />
+          <label className="field">
+            <div className="field-label">Password</div>
+            <input
+              className="text-input"
+              type="password"
+              placeholder="••••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+          </label>
 
-        <input placeholder="Password" type="password" style={styles.input} value={password}
-               onChange={e => setPassword(e.target.value)} />
+          <div className="card-actions">
+            <button className="btn btn-primary" onClick={handleSignup}>
+              Sign Up
+            </button>
+            <button className="btn btn-secondary" onClick={() => nav("/signin")}>
+              Sign in
+            </button>
+          </div>
 
-        <button style={styles.btn} onClick={handleSignup}>
-          Sign Up
-        </button>
-
-        {error && <p style={{ color: "red" }}>{error}</p>}
-
-        <p>
-          Already have an account?{" "}
-          <span style={styles.link} onClick={() => nav("/signin")}>
-            Sign in
-          </span>
-        </p>
+          {error && <p className="input-error">{error}</p>}
+        </div>
       </div>
-    </>
+    </div>
   );
 }
-
-const styles = {
-  card: { width: "350px", margin: "3rem auto", padding: "2rem",
-          borderRadius: "12px", background: "#f7f7f7", textAlign: "center" },
-  input: { width: "100%", padding: "0.75rem", margin: "0.5rem 0",
-           borderRadius: "8px", border: "1px solid #ccc" },
-  btn: { marginTop: "1rem", padding: "0.75rem", width: "100%",
-         background: "#3b82f6", color: "#fff", border: "none",
-         borderRadius: "8px", cursor: "pointer" },
-  link: { color: "#3b82f6", cursor: "pointer" }
-};

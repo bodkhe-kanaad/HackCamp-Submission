@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Navbar from "../components/Navbar";
 import { api } from "../services/api";
+import "./css/auth.css";
 
 export default function SignIn() {
   const nav = useNavigate();
@@ -15,11 +15,10 @@ export default function SignIn() {
 
     try {
       const res = await api.post("/login", {
-        "username":email,
-        "password":password
+        username: email,
+        password: password
       });
 
-      // backend returns true or false
       const success = res.data.authenticated === true;
 
       if (!success) {
@@ -29,63 +28,62 @@ export default function SignIn() {
 
       // login success → proceed to dashboard
       nav("/dashboard");
-
     } catch (err) {
       setError("Login failed. Check backend.");
     }
   }
 
   return (
-    <>
-      <Navbar />
-      <div style={styles.card}>
-        <h2>Welcome Back</h2>
+    <div className="auth-wrapper">
+      <div className="signin-card">
+        <h2 className="card-title">Welcome Back</h2>
+        <p className="muted">Sign in to continue</p>
 
-        <input
-          placeholder="Email"
-          style={styles.input}
-          value={email}
-          onChange={e => setEmail(e.target.value)}
-        />
+        <div className="signin-form">
+          <label className="field">
+            <div className="field-label">Email</div>
+            <input
+              className="text-input"
+              placeholder="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+          </label>
 
-        <input
-          placeholder="Password"
-          type="password"
-          style={styles.input}
-          value={password}
-          onChange={e => setPassword(e.target.value)}
-        />
+          <label className="field">
+            <div className="field-label">Password</div>
+            <input
+              className="text-input"
+              type="password"
+              placeholder="••••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+          </label>
 
-        <button style={styles.btn} onClick={handleLogin}>
-          Sign In
-        </button>
+          <div className="card-actions">
+            <button className="btn btn-primary" onClick={handleLogin}>
+              Sign In
+            </button>
+            <button
+              type="button"
+              className="btn btn-secondary"
+              onClick={() => nav("/signup")}
+            >
+              Sign up
+            </button>
+          </div>
 
-        {error && <p style={{ color: "red" }}>{error}</p>}
+          {error && <p className="input-error">{error}</p>}
 
-        <p>
-          Don't have an account?{" "}
-          <span style={styles.link} onClick={() => nav("/signup")}>
-            Sign up
-          </span>
-        </p>
+          <div className="divider">Or continue with</div>
+
+          <div className="social-row">
+            <button type="button" className="social-btn">Google</button>
+            <button type="button" className="social-btn">GitHub</button>
+          </div>
+        </div>
       </div>
-    </>
+    </div>
   );
 }
-
-const styles = {
-  card: {
-    width: "350px", margin: "3rem auto", padding: "2rem",
-    borderRadius: "12px", background: "#f7f7f7", textAlign: "center"
-  },
-  input: {
-    width: "100%", padding: "0.75rem", margin: "0.5rem 0",
-    borderRadius: "8px", border: "1px solid #ccc"
-  },
-  btn: {
-    marginTop: "1rem", padding: "0.75rem", width: "100%",
-    background: "#3b82f6", color: "#fff", border: "none",
-    borderRadius: "8px", cursor: "pointer"
-  },
-  link: { color: "#3b82f6", cursor: "pointer" }
-};
