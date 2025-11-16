@@ -10,7 +10,7 @@ DB_CONFIG = {
 
 
 def create_database_and_tables():
-    """Create database and User and Pair tables"""
+    """Create database and User, Pair, and Question tables"""
     conn = None
     cursor = None
     
@@ -57,15 +57,29 @@ def create_database_and_tables():
             );
         """)
         
+        # Create Question table
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS "question" (
+                id SERIAL PRIMARY KEY,
+                question TEXT NOT NULL,
+                A TEXT NOT NULL,
+                B TEXT NOT NULL,
+                C TEXT NOT NULL,
+                D TEXT NOT NULL,
+                correct_option VARCHAR(1) NOT NULL CHECK (correct_option IN ('A', 'B', 'C', 'D'))
+            );
+        """)
+        
         # Add foreign key constraints to Pair table
         cursor.execute("""
             ALTER TABLE "Pair"
-            ADD CONSTRAINT fk_pair_user1 FOREIGN KEY (user1) REFERENCES "User"(user_id) ON DELETE SET NULL,
-            ADD CONSTRAINT fk_pair_user2 FOREIGN KEY (user2) REFERENCES "User"(user_id) ON DELETE SET NULL;
+            ADD CONSTRAINT fk_pair_user1 FOREIGN KEY (user1) REFERENCES "users"(user_id) ON DELETE SET NULL,
+            ADD CONSTRAINT fk_pair_user2 FOREIGN KEY (user2) REFERENCES "users"(user_id) ON DELETE SET NULL,
+            ADD CONSTRAINT fk_pair_question FOREIGN KEY (question_id) REFERENCES "question"(id) ON DELETE SET NULL;
         """)
         
         conn.commit()
-        print("Tables 'User' and 'Pair' created successfully")
+        print("Tables 'User', 'Pair', and 'Question' created successfully")
         
     except (Exception, psycopg2.DatabaseError) as error:
         print(f"Error: {error}")
