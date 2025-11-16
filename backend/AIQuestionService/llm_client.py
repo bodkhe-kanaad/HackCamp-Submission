@@ -1,43 +1,45 @@
-# llm_client.py
 import json
 import re
 import os
+from dotenv import load_dotenv
 from openai import OpenAI
 
 # -----------------------------------------------------
-# CONFIG
+# LOAD ENV + CONFIG
 # -----------------------------------------------------
-from dotenv import load_dotenv
-import os
-
-load_dotenv()  # THIS MUST BE FIRST
+load_dotenv()
 
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-
 if not OPENAI_API_KEY:
     raise RuntimeError("OPENAI_API_KEY is not set!")
+
 client = OpenAI(api_key=OPENAI_API_KEY)
 
+MODEL_NAME = "gpt-4o-mini"      # change this to any model you want
+MAX_TOKENS = 350
+
+
 # -----------------------------------------------------
-# JSON Extraction Helper
+# Helper: extract JSON from model text
 # -----------------------------------------------------
 def _extract_json(text):
-    """Extract the first valid JSON object from model output."""
-    # Remove code fences
-    cleaned = text.replace("```json", "").replace("```", "").strip()
+    cleaned = (
+        text.replace("```json", "")
+            .replace("```", "")
+            .strip()
+    )
 
-    # Try full parse
+    # Try direct JSON
     try:
         return json.loads(cleaned)
     except:
         pass
 
-    # Try to grab a JSON object via regex
+    # Try regex-based extraction
     match = re.search(r"\{[\s\S]*\}", cleaned)
     if match:
-        snippet = match.group(0)
         try:
-            return json.loads(snippet)
+            return json.loads(match.group(0))
         except:
             return None
 
@@ -45,7 +47,7 @@ def _extract_json(text):
 
 
 # -----------------------------------------------------
-# JSON Schema Validator
+# Validate JSON structure
 # -----------------------------------------------------
 REQUIRED_KEYS = ["question", "A", "B", "C", "D", "correct_option"]
 
@@ -54,7 +56,7 @@ def _is_valid_schema(obj):
         return False
 
     for k in REQUIRED_KEYS:
-        if k not in obj or obj[k] is None or obj[k] == "":
+        if k not in obj or not obj[k]:
             return False
 
     if obj["correct_option"] not in ["A", "B", "C", "D"]:
@@ -64,70 +66,59 @@ def _is_valid_schema(obj):
 
 
 # -----------------------------------------------------
-# Prompt Builder
+# Prompt builder
 # -----------------------------------------------------
 def _build_prompt(learning_goal):
     return f"""
-You are an AI that generates **university-level multiple-choice questions**.
-Output MUST be **a single JSON object only**. No explanations. No markdown.
+You generate university-level multiple-choice questions.
 
-JSON FORMAT (STRICT):
+OUTPUT RULES:
+- Output must be EXACTLY one JSON object.
+- No explanations, no markdown, no text outside JSON.
+
+FORMAT STRICTLY:
 {{
-  "question": "A single clear question",
-  "A": "Option A",
-  "B": "Option B",
-  "C": "Option C",
-  "D": "Option D",
+  "question": "string",
+  "A": "string",
+  "B": "string",
+  "C": "string",
+  "D": "string",
   "correct_option": "A"
 }}
 
-RULES:
-- Do NOT add any text before or after the JSON.
-- Options must be similar difficulty.
-- Based ONLY on the following learning goal:
-
-LEARNING GOAL:
+Learning Goal:
 "{learning_goal}"
 
-Return ONLY the JSON:
+Now output ONLY the JSON object.
 """
 
 
 # -----------------------------------------------------
-# Main Generator
+# Main LLM Generator
 # -----------------------------------------------------
 def generate_llm_question(learning_goal, retries=3):
     prompt = _build_prompt(learning_goal)
 
     for attempt in range(1, retries + 1):
         try:
-            completion = client.chat.completions.create(
+            response = client.chat.completions.create(
                 model=MODEL_NAME,
                 messages=[{"role": "user", "content": prompt}],
                 max_tokens=MAX_TOKENS,
                 temperature=0.2,
             )
 
-            raw_text = completion.choices[0].message["content"]
+            raw_text = response.choices[0].message.content
             parsed = _extract_json(raw_text)
 
             if parsed and _is_valid_schema(parsed):
                 return parsed
 
-            print(f"[LLM WARNING] Attempt {attempt}: invalid JSON output")
-            print(raw_text[:200])
+            print(f"[LLM WARNING] Attempt {attempt}: Invalid JSON:")
+            print(raw_text)
 
         except Exception as e:
             print(f"[LLM ERROR] Attempt {attempt}: {e}")
 
-    # -----------------------------------------------------
-    # FINAL FAILSAFE — never break your app
-    # -----------------------------------------------------
-    return {
-        "question": "Fallback: What is the main concept behind this learning objective?",
-        "A": "Concept A",
-        "B": "Concept B",
-        "C": "Concept C",
-        "D": "Concept D",
-        "correct_option": "A"
-    }
+    # If nothing works, return None — LET YOUR CALLER HANDLE IT
+    return None
