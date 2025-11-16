@@ -1,0 +1,77 @@
+/* -------------------------------------- */
+/* 1. LAYOUT & TABLE STRUCTURE (KEEP) */
+/* -------------------------------------- */
+
+/* Container for the whole Leaderboard (Crucial for centering) */
+.leaderboard-container h2 {
+  text-align: center;
+  margin-bottom: 20px; /* Add some space between the title and the table */
+  color: var(--primary); /* Optional: Use your primary color for emphasis */
+}
+
+.leaderboard-table {
+  width: 100%;
+  border-collapse: collapse; 
+  font-size: 16px;
+  text-align: left;
+}
+
+.leaderboard-table th {
+  padding: 12px 15px;
+  border-bottom: 2px solid var(--muted);
+  font-weight: 700;
+  color: var(--primary);
+  text-transform: uppercase;
+  font-size: 14px;
+}
+
+.leaderboard-table td {
+  padding: 12px 15px;
+  border-bottom: 1px solid rgba(0,0,0,0.05);
+  vertical-align: middle;
+}
+
+.leaderboard-table tr:hover {
+  background-color: rgba(0, 96, 120, 0.03); 
+}
+
+/* -------------------------------------- */
+/* 2. IMAGE MEDAL & TOP ROW STYLING (KEEP/ADD) */
+/* -------------------------------------- */
+
+/* Highlights the entire top 3 rows */
+.top-rank-row {
+  background-color: var(--accent-soft); 
+  font-weight: 600;
+}
+
+/* Container for the image and rank number (Needed for your JSX) */
+.medal-display {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px; 
+    font-weight: 700;
+}
+
+/* 🏅 Resizing the Medal Image (Needed for the big image fix) */
+.medal-icon {
+    width: 32px; 
+    height: 32px;
+    object-fit: contain;
+    flex-shrink: 0;
+}
+
+/* 🛑 Override the rank cell's row background (KEEP) */
+.top-rank-row td:first-child {
+  background-color: inherit; 
+}
+.leaderboard-table td:first-child {
+  text-align: center; /* Ensures the medal-display is centered in the Rank cell */
+}
+
+/* -------------------------------------- */
+/* 3. BADGE STYLING (ADD BACK) */
+/* -------------------------------------- */
+
+/* Add your badge styles (.badge, .badge-solver, .badge-pro) here */

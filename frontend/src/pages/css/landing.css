@@ -33,7 +33,7 @@ body {
   width: 90%; 
   max-width: 1080px; 
   height: 80vh;  
-  margin: 36px 36px;
+  margin: 36px auto;
    /* <-- This is the core centering rule */
   
   /* Existing styles */
