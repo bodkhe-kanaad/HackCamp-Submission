@@ -107,7 +107,7 @@ export default function Dashboard() {
             {pairBasic && (
               <button
                 style={styles.taskBtn}
-                onClick={() => nav(`/solve/${id}`)}
+                onClick={() => nav(`/solve/${user.user_id}`)}
               >
                 Today's Task
               </button>
