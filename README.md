@@ -9,7 +9,7 @@ PairUp creates a supportive learning habit by pairing students and giving them *
 ---
 
 ## 📸 Demo Screenshots  
-_(Add screenshots here once ready.)_
+BE UNBIASED AND TAKE A LOOK!!! https://youtu.be/XmhBpx7_EvA?si=8bsBvlczQkoqLIYa
 
 ---
 
