@@ -196,3 +196,79 @@ def get_user_pair_status(user_id):
         "pair_id": pair_id,
         "partner_id": partner_id
     }
+
+def get_pairmate_details(user_id):
+    conn = get_connection()
+    cur = conn.cursor()
+
+    # 1. Get your pair_id
+    cur.execute(
+        'SELECT pair_id FROM users WHERE user_id = %s;',
+        (user_id,)
+    )
+    row = cur.fetchone()
+
+    if not row or row[0] is None:
+        cur.close()
+        conn.close()
+        return None  # user not paired
+
+    pair_id = row[0]
+
+    # 2. Get both users in the pair
+    cur.execute(
+        'SELECT user1, user2 FROM pair WHERE pair_id = %s;',
+        (pair_id,)
+    )
+    pair_row = cur.fetchone()
+
+    if not pair_row:
+        cur.close()
+        conn.close()
+        return None
+
+    user1_id, user2_id = pair_row
+
+    partner_id = user2_id if user1_id == user_id else user1_id
+
+    # 3. Fetch your profile
+    cur.execute(
+        'SELECT user_id, username, interests, courses FROM users WHERE user_id = %s;',
+        (user_id,)
+    )
+    u1 = cur.fetchone()
+
+    # 4. Fetch partner profile
+    cur.execute(
+        'SELECT user_id, username, interests, courses FROM users WHERE user_id = %s;',
+        (partner_id,)
+    )
+    u2 = cur.fetchone()
+
+    cur.close()
+    conn.close()
+
+    # Convert to dicts for similarity function
+    user_self = {
+        "user_id": u1[0],
+        "username": u1[1],
+        "interests": u1[2] or [],
+        "courses": u1[3] or []
+    }
+
+    user_partner = {
+        "user_id": u2[0],
+        "username": u2[1],
+        "interests": u2[2] or [],
+        "courses": u2[3] or []
+    }
+
+    # 5. Compute similarity
+    similarity = compute_similarity(user_self, user_partner)
+
+    # 6. Return data for frontend
+    return {
+        "pair_id": pair_id,
+        "partner": user_partner,
+        "similarity_score": similarity
+    }
