@@ -1,28 +1,29 @@
-name: Test OpenAI
+name: run-openai
 
 on:
-  workflow_dispatch:   # lets you manually run it in GitHub
+  workflow_dispatch:
 
 jobs:
-  run-openai:
+  run-llm:
     runs-on: ubuntu-latest
 
     env:
       OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
 
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: 3.10
+          python-version: "3.11"
 
       - name: Install dependencies
         run: |
-          pip install openai==1.3.0
+          python -m pip install --upgrade pip
+          pip install openai
 
-      - name: Run OpenAI script
+      - name: Run script
         run: |
           python script.py
