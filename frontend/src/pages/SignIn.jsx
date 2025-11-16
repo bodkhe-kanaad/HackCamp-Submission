@@ -12,7 +12,7 @@ export default function SignIn() {
 
   async function handleLogin() {
     try {
-      const res = await api.post("/api/auth/login", {
+      const res = await api.post("/login", {
         email,
         password
       });

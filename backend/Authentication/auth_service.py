@@ -1,4 +1,3 @@
-from db import get_connection
 from backend.db import get_connection
 import uuid
 
