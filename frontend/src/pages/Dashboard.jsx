@@ -13,6 +13,7 @@ export default function Dashboard() {
   const [loadingUser, setLoadingUser] = useState(true);
   const [loadingPair, setLoadingPair] = useState(false);
   const [error, setError] = useState("");
+  const [pairError, setPairError] = useState("");
 
   // --------------------------
   // LOAD DATA
@@ -29,7 +30,7 @@ export default function Dashboard() {
         const userRes = await api.get(`/user/${id}`);
         setUser(userRes.data);
       } catch {
-        setError("Failed to load user profile.");
+        setError("Failed to load profile.");
       }
 
       try {
@@ -40,7 +41,9 @@ export default function Dashboard() {
           const mate = await api.get(`/pair/mate/${id}`);
           setPairFull(mate.data);
         }
-      } catch {}
+      } catch (err) {
+        console.error("Pair error:", err);
+      }
 
       setLoadingUser(false);
     }
@@ -52,6 +55,7 @@ export default function Dashboard() {
   // PAIR USER
   // --------------------------
   async function handlePair() {
+    setPairError("");
     setLoadingPair(true);
     const id = localStorage.getItem("user_id");
 
@@ -278,8 +282,8 @@ const styles = {
 
   row: {
     display: "flex",
-    justifyContent: "space-between",
     marginBottom: "0.6rem",
+    gap: "0.5rem",
   },
 
   label: {
@@ -302,7 +306,6 @@ const styles = {
   partnerBox: {
     display: "flex",
     gap: "1rem",
-    marginBottom: "1rem",
   },
 
   avatar: {
@@ -370,4 +373,59 @@ const styles = {
     fontWeight: 600,
     cursor: "pointer",
   },
+
+  accentButton: {
+    marginTop: "1rem",
+    padding: "0.8rem",
+    width: "100%",
+    background: "#10b981",
+    color: "#fff",
+    border: "none",
+    borderRadius: "10px",
+    cursor: "pointer",
+    fontWeight: 600,
+  },
+
+  partnerCard: {
+    marginTop: "2rem",
+    background: "#effdf5",
+    padding: "1.5rem",
+    borderRadius: "14px",
+    boxShadow: "0 4px 10px rgba(0,0,0,0.08)",
+    textAlign: "left",
+  },
+
+  partnerTitle: {
+    fontSize: "1.4rem",
+    fontWeight: 700,
+    marginBottom: "1rem",
+  },
+
+  switch: {
+    position: "relative",
+    display: "inline-block",
+    width: "48px",
+    height: "24px",
+  },
+
+  slider: {
+    position: "absolute",
+    cursor: "pointer",
+    top: "0",
+    left: "0",
+    right: "0",
+    bottom: "0",
+    backgroundColor: "#ccc",
+    transition: ".4s",
+    borderRadius: "24px",
+  },
+
+  streakBox: {
+    marginTop: "1rem",
+    padding: "0.7rem",
+    background: "#fef3c7",
+    borderRadius: "8px",
+    fontWeight: 600,
+    textAlign: "center",
+  }
 };
