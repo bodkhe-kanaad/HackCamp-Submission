@@ -1,86 +1,88 @@
-# llm_client.py
-import json
-import re
-import os
-from openai import OpenAI
-from dotenv import load_dotenv
-
-# -----------------------------------------------------
-# LOAD ENV + API KEY
-# -----------------------------------------------------
-load_dotenv()
-
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-if not OPENAI_API_KEY:
-    raise RuntimeError("OPENAI_API_KEY is not set in environment!")
 
 client = OpenAI(api_key=OPENAI_API_KEY)
 
-# Model and token config
-MODEL_NAME = "gpt-4o-mini"
+MODEL_NAME = "gpt-4o-mini"   # cheap, fast, reliable
 MAX_TOKENS = 300
 
 
 # -----------------------------------------------------
-# Extract JSON from model output
+# JSON Extraction — strongest version
 # -----------------------------------------------------
-def _extract_json(text: str) -> dict | None:
-    """Extract a JSON object cleanly from LLM output."""
+def extract_json_str(text: str):
+    """Extract the first valid JSON object from a messy LLM response."""
     if not text:
         return None
 
-    # Remove code fences if present
-    cleaned = text.replace("```json", "").replace("```", "").strip()
+    # Remove code fences
+    cleaned = (
+        text.replace("```json", "")
+        .replace("```", "")
+        .replace("`", "")
+        .strip()
+    )
 
-    # Try direct parse
+    # Direct attempt
     try:
-        return json.loads(cleaned)
+        return cleaned if json.loads(cleaned) else None
     except:
         pass
 
-    # Fallback: regex find first {...}
+    # Regex-based extraction (greedy)
     match = re.search(r"\{[\s\S]*\}", cleaned)
     if match:
         snippet = match.group(0)
         try:
-            return json.loads(snippet)
+            json.loads(snippet)
+            return snippet
         except:
-            return None
+            pass
 
     return None
 
 
-# -----------------------------------------------------
-# Validate LLM output schema
-# -----------------------------------------------------
-REQUIRED_KEYS = ["question", "A", "B", "C", "D", "correct_option"]
+def parse_json(s: str):
+    """Safely parse JSON string to Python dict."""
+    try:
+        return json.loads(s)
+    except:
+        return None
 
-def _is_valid_schema(obj: dict) -> bool:
+
+# -----------------------------------------------------
+# SCHEMA CHECK
+# -----------------------------------------------------
+REQUIRED = ["question", "A", "B", "C", "D", "correct_option"]
+
+def is_valid_schema(obj):
     if not isinstance(obj, dict):
         return False
-
-    for k in REQUIRED_KEYS:
+    for k in REQUIRED:
         if k not in obj or not obj[k]:
             return False
-
     if obj["correct_option"] not in ["A", "B", "C", "D"]:
         return False
-
     return True
 
 
 # -----------------------------------------------------
-# Prompt Builder
+# PROMPT BUILDER (bulletproof)
 # -----------------------------------------------------
-def _build_prompt(goal: str) -> str:
+def build_prompt(goal: str):
     return f"""
-You generate **university-level multiple-choice questions**.
+You generate EXACTLY ONE multiple-choice question in pure JSON.
 
-Output MUST be **ONLY a JSON object**. No explanation. No markdown.
+RULES:
+- Output ONLY a JSON object.
+- NO text before or after the JSON.
+- NO markdown.
+- NO backticks.
+- NO explanations.
+- JSON must be valid and parseable by Python json.loads().
+- correct_option MUST be one of: "A","B","C","D".
 
-FORMAT (STRICT):
+FORMAT YOU MUST FOLLOW EXACTLY:
 {{
-  "question": "A clear question",
+  "question": "University-level question here.",
   "A": "Option A",
   "B": "Option B",
   "C": "Option C",
@@ -88,46 +90,60 @@ FORMAT (STRICT):
   "correct_option": "A"
 }}
 
-LEARNING GOAL:
+Learning Goal:
 "{goal}"
 
-Return ONLY the JSON.
+Return ONLY the JSON object. If you output anything else, the system will fail.
 """
 
 
 # -----------------------------------------------------
-# Main: generate good MCQ
+# MAIN GENERATOR
 # -----------------------------------------------------
-def generate_llm_question(learning_goal: str, retries: int = 3) -> dict:
-    prompt = _build_prompt(learning_goal)
+def generate_llm_question(learning_goal: str):
+    prompt = build_prompt(learning_goal)
 
-    for attempt in range(1, retries + 1):
-        try:
-            completion = client.chat.completions.create(
-                model=MODEL_NAME,
-                messages=[{"role": "user", "content": prompt}],
-                max_tokens=MAX_TOKENS,
-                temperature=0.1,
-            )
+    try:
+        completion = client.chat.completions.create(
+            model=MODEL_NAME,
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.2,
+            max_tokens=MAX_TOKENS
+        )
 
-            raw = completion.choices[0].message.content
-            parsed = _extract_json(raw)
+        raw = completion.choices[0].message.content
+        print("\n--- RAW LLM OUTPUT ---\n", raw, "\n----------------------\n")
 
-            if parsed and _is_valid_schema(parsed):
-                return parsed
+        json_str = extract_json_str(raw)
+        if not json_str:
+            print("[JSON ERROR] Could not extract JSON from model output.")
+            return fallback_question()
 
-            print(f"[WARN] Invalid JSON on attempt {attempt}")
-            print(raw[:200])
+        obj = parse_json(json_str)
+        if not obj:
+            print("[PARSE ERROR] Could not parse extracted JSON.")
+            return fallback_question()
 
-        except Exception as e:
-            print(f"[ERROR] LLM error attempt {attempt}: {e}")
+        if not is_valid_schema(obj):
+            print("[SCHEMA ERROR] JSON missing required fields.")
+            return fallback_question()
 
-    # Final fallback (only if OpenAI fully fails)
+        return obj
+
+    except Exception as e:
+        print("[LLM ERROR]:", e)
+        return fallback_question()
+
+
+# -----------------------------------------------------
+# FALLBACK — last resort ONLY
+# -----------------------------------------------------
+def fallback_question():
     return {
-        "question": "Fallback: Which option best matches your learning goal?",
-        "A": "Option A",
-        "B": "Option B",
-        "C": "Option C",
-        "D": "Option D",
+        "question": "Fallback question: Which option best describes the main concept?",
+        "A": "Concept A",
+        "B": "Concept B",
+        "C": "Concept C",
+        "D": "Concept D",
         "correct_option": "A"
     }
