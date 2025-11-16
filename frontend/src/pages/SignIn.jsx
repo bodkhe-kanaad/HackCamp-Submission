@@ -11,16 +11,25 @@ export default function SignIn() {
   const [error, setError] = useState("");
 
   async function handleLogin() {
+    setError("");
+
     try {
       const res = await api.post("/login", {
         email,
         password
       });
 
-      const userId = res.data.user_id;
-      localStorage.setItem("user_id", userId);
+      // backend returns true or false
+      const success = res.data === true;
 
+      if (!success) {
+        setError("Invalid email or password.");
+        return;
+      }
+
+      // login success → proceed to dashboard
       nav("/dashboard");
+
     } catch (err) {
       setError("Login failed. Check backend.");
     }
@@ -32,11 +41,20 @@ export default function SignIn() {
       <div style={styles.card}>
         <h2>Welcome Back</h2>
 
-        <input placeholder="Email" style={styles.input}
-               value={email} onChange={e => setEmail(e.target.value)} />
+        <input
+          placeholder="Email"
+          style={styles.input}
+          value={email}
+          onChange={e => setEmail(e.target.value)}
+        />
 
-        <input placeholder="Password" type="password" style={styles.input}
-               value={password} onChange={e => setPassword(e.target.value)} />
+        <input
+          placeholder="Password"
+          type="password"
+          style={styles.input}
+          value={password}
+          onChange={e => setPassword(e.target.value)}
+        />
 
         <button style={styles.btn} onClick={handleLogin}>
           Sign In
