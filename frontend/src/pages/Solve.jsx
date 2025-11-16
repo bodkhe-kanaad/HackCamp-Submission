@@ -5,19 +5,20 @@ import { api } from "../services/api";
 
 export default function Solve() {
   const nav = useNavigate();
-  const { id: routeUserId } = useParams(); // /solve/:id
+  const { id: routeUserId } = useParams();
 
   const [loading, setLoading] = useState(true);
   const [question, setQuestion] = useState(null);
   const [choice, setChoice] = useState(null);
   const [submitResult, setSubmitResult] = useState(null);
+  const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
 
-  // Step 1 — Fetch today's question
   useEffect(() => {
     async function loadQuestion() {
       setError("");
       setSubmitResult(null);
+      setChoice(null);
 
       const user_id = routeUserId || localStorage.getItem("user_id");
       if (!user_id) {
@@ -25,7 +26,6 @@ export default function Solve() {
         return;
       }
 
-      // confirm paired
       try {
         const statusRes = await api.get(`/pair/status/${user_id}`);
         if (statusRes.data.pair_id === null) {
@@ -34,28 +34,30 @@ export default function Solve() {
           return;
         }
       } catch (err) {
-        console.error(err);
+        console.error("Pair status error:", err);
         setError("Failed to check pair status.");
         setLoading(false);
         return;
       }
 
-      // fetch question
       try {
         const res = await api.get(`/todays-task/${user_id}`);
         const raw = res.data;
 
-        // Transform unified backend response
+        if (!raw || !raw.options || typeof raw.options !== "object") {
+          throw new Error("Invalid question format received");
+        }
+
         const formatted = {
           id: raw.id,
           title: "Daily Coding Challenge",
           description: raw.question,
-          options: raw.options, // <-- dictionary {A: "...", B: "..."}
+          options: raw.options,
         };
 
         setQuestion(formatted);
       } catch (err) {
-        console.error(err);
+        console.error("Question fetch error:", err);
         setError("No question assigned yet.");
       } finally {
         setLoading(false);
@@ -65,22 +67,38 @@ export default function Solve() {
     loadQuestion();
   }, [nav, routeUserId]);
 
-  // Step 2 — Submit answer
   async function submitAnswer() {
     const user_id = routeUserId || localStorage.getItem("user_id");
-    if (!choice) return;
+    
+    if (!choice) {
+      alert("Please select an answer first");
+      return;
+    }
+
+    if (!question || !question.id) {
+      setError("Question data is missing");
+      return;
+    }
+
+    setSubmitting(true);
+    setError("");
 
     try {
       const res = await api.post("/check-answer", {
         user_id: user_id,
         question_id: question.id,
-        choice: choice, // MUST match backend
+        choice: choice,
       });
 
-      setSubmitResult(res.data.correct);
+      const isCorrect = res.data.correct === true;
+
+      setSubmitResult(isCorrect);
+
     } catch (err) {
-      console.error(err);
+      console.error("Submit error:", err);
       setError("Failed to submit answer.");
+    } finally {
+      setSubmitting(false);
     }
   }
 
@@ -94,8 +112,7 @@ export default function Solve() {
         {loading && <p>Loading question...</p>}
         {error && <p style={{ color: "red" }}>{error}</p>}
 
-        {/* Prevent render crashes with strong guards */}
-        {!loading && question && question.options && (
+        {!loading && !error && question && question.options && typeof question.options === "object" && (
           <div style={styles.card}>
             <h3>{question.title}</h3>
             <p>{question.description}</p>
@@ -107,7 +124,9 @@ export default function Solve() {
                     type="radio"
                     name="mcq"
                     value={letter}
+                    checked={choice === letter}
                     onChange={() => setChoice(letter)}
+                    disabled={submitResult !== null}
                   />
                   <strong>{letter}.</strong> {text}
                 </label>
@@ -115,22 +134,38 @@ export default function Solve() {
             </div>
 
             <button
-              style={styles.btn}
-              disabled={!choice}
+              style={{
+                ...styles.btn,
+                opacity: (!choice || submitting) ? 0.5 : 1,
+                cursor: (!choice || submitting) ? "not-allowed" : "pointer",
+              }}
+              disabled={!choice || submitting}
               onClick={submitAnswer}
             >
-              Submit Answer
+              {submitting ? "Submitting..." : "Submit Answer"}
             </button>
 
             {submitResult !== null && (
-              <p
+              <div
                 style={{
-                  color: submitResult ? "green" : "red",
-                  marginTop: "1rem",
+                  marginTop: "1.5rem",
+                  padding: "1rem",
+                  borderRadius: "8px",
+                  backgroundColor: submitResult ? "#d4edda" : "#f8d7da",
+                  border: submitResult ? "2px solid #28a745" : "2px solid #dc3545",
                 }}
               >
-                {submitResult ? "Correct! 🎉" : "Incorrect ❌"}
-              </p>
+                <p
+                  style={{
+                    color: submitResult ? "#155724" : "#721c24",
+                    fontWeight: "bold",
+                    fontSize: "1.2rem",
+                    margin: 0,
+                  }}
+                >
+                  {submitResult ? "✓ Correct! 🎉" : "✗ Incorrect ❌"}
+                </p>
+              </div>
             )}
           </div>
         )}
@@ -159,11 +194,14 @@ const styles = {
     borderRadius: "10px",
     border: "none",
     cursor: "pointer",
+    fontSize: "1rem",
+    fontWeight: "600",
   },
   option: {
     display: "block",
     margin: "0.5rem 0",
     textAlign: "left",
     paddingLeft: "1rem",
+    cursor: "pointer",
   },
 };
