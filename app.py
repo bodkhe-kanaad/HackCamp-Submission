@@ -8,8 +8,8 @@ from backend.Pairing.routes.unpair_routes import unpair_bp
 from backend.LeetcodeQuestionService.routes.question_routes import question_bp
 from backend.Leaderboard.routes.leaderboard_routes import leaderboard_bp
 from backend.Authentication.routes.auth_routes import auth_bp
-from backend.AIQuestionService.routes import ai_bp
-from backend.Pairing.routes import mode_bp
+from backend.AIQuestionService.routes.ai_question_routes import ai_bp
+from backend.Pairing.routes.pair_mode_routes import mode_bp
 
 
 
@@ -36,8 +36,8 @@ def create_app():
     scheduler.add_job(
         func=update_streaks_for_all_pairs,
         trigger="cron",
-        hour=0,
-        minute=0
+        hour=4,
+        minute=36
     )
     scheduler.start()
 

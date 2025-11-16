@@ -1,5 +1,10 @@
 Flask
-psycopg1
+psycopg2
 pymongo
 apscheduler
 Faker
+requests
+joblib
+numpy
+scikit-learn
+sentence_transformers
