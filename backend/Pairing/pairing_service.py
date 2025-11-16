@@ -68,19 +68,18 @@ def compute_similarity(u1, u2):
     return score
 
 
-# Main pairing function
 def pair_user(user_id):
     current_user = get_user(user_id)
     if not current_user:
-        return None
+        return None, None  # (partner_id, pair_id)
 
-    # Already paired
+    # already paired
     if current_user["partner_id"] is not None:
-        return current_user["partner_id"]
+        return current_user["partner_id"], None
 
     others = get_unpaired_users(user_id)
     if not others:
-        return None
+        return None, None
 
     best_match = None
     best_score = -1
@@ -92,30 +91,37 @@ def pair_user(user_id):
             best_match = other
 
     if not best_match:
-        return None
+        return None, None
 
     partner_id = best_match["id"]
-    if partner_id is None:
-        return None
 
-    # Update both users reciprocally
     conn = get_connection()
     cur = conn.cursor()
 
-    # user_id's partner becomes partner_id
+    # Step 1: set partner_id for both users
     cur.execute(
         "UPDATE users SET partner_id = %s WHERE id = %s;",
         (partner_id, user_id)
     )
-
-    # partner_id's partner becomes user_id
     cur.execute(
         "UPDATE users SET partner_id = %s WHERE id = %s;",
         (user_id, partner_id)
     )
 
+    # Step 2: create pair record in pairings table
+    cur.execute(
+        """
+        INSERT INTO pairings (user1_id, user2_id, active)
+        VALUES (%s, %s, TRUE)
+        RETURNING pair_id;
+        """,
+        (user_id, partner_id)
+    )
+
+    pair_id = cur.fetchone()[0]
+
     conn.commit()
     cur.close()
     conn.close()
 
-    return partner_id
+    return partner_id, pair_id
