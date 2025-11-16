@@ -9,7 +9,7 @@ question_bp = Blueprint("question_bp", __name__)
 
 # ---------------------------------------------------------
 # GET /todays-task/<user_id>
-# Returns the same question every time until both users answer
+# Returns the same question until both users answer it
 # ---------------------------------------------------------
 @question_bp.get("/todays-task/<int:user_id>")
 def todays_task_route(user_id):
@@ -23,7 +23,7 @@ def todays_task_route(user_id):
 
 # ---------------------------------------------------------
 # POST /check-answer
-# user submits answer → updates pair table, streak, resets question
+# user submits answer → updates pair table
 # ---------------------------------------------------------
 @question_bp.post("/check-answer")
 def check_answer_route():
@@ -33,20 +33,21 @@ def check_answer_route():
     question_id = data.get("question_id")
     choice = data.get("choice")
 
-    # Validate
+    # Basic validation
     if user_id is None or question_id is None or choice is None:
-        return jsonify({"error": "user_id, question_id, and choice are required"}), 400
+        return jsonify({
+            "error": "user_id, question_id, and choice are required"
+        }), 400
 
     try:
         question_id = int(question_id)
-    except:
+    except ValueError:
         return jsonify({"error": "question_id must be an integer"}), 400
 
-    # Call service logic
+    # Call SQL-based service logic
     result = check_answer(question_id, choice, user_id)
 
     if result is None:
         return jsonify({"error": "question not found"}), 404
 
-    # result = True or False
     return jsonify({"correct": result})

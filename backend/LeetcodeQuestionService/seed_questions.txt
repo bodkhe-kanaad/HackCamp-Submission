@@ -1,0 +1,46 @@
+questions = [
+    {
+        "id": 1,
+        "question": "Complete the missing line in the Two Sum solution.def twoSum(nums, target):\n"    hashmap = {}\n    for i in range(len(nums)):\n        ### FILL HERE ###\n        hashmap[nums[i]] = i",
+        "A": "if nums[i] in hashmap: return [i, hashmap[nums[i]]]",
+        "B": "return [i, i + 1]",
+        "C": "if target - nums[i] in hashmap: return [hashmap[target - nums[i]], i]",
+        "D": "continue"
+        "correct_option": "C"
+    },
+    {
+        "id": 2,
+        "question": "Fill in the missing line to reverse the linked list.",def reverseList(head):\n    prev = None\n    curr = head\n    while curr:\n        ### FILL HERE ###\n        curr = nxt\n    return prev",
+        "A": "nxt = curr.next; curr.next = prev; prev = curr",
+        "B": "prev = curr.next",
+        "C": "nxt = prev",
+        "D": "curr = prev.next"
+        "correct_option": "A"
+    }
+    {
+        "id": 3,
+        "question": "Choose the correct condition to validate matching brackets."def isValid(s):\n    stack = []\n    mapping = {')':'(', ']':'[', '}':'{'}\n    for c in s:\n        if c in mapping:\n            top = stack.pop() if stack else '#'\n            ### FILL HERE ###\n        else:\n            stack.append(c)\n    return not stack",
+        "A": "if not stack: return False",
+        "B": "if top != mapping[c]: return False",
+        "C": "stack.append(c)",
+        "D": "return True"
+        "correct_option": "B"
+    },
+    {
+        "id": 4,
+        "question": "Select the line that merges nodes in sorted order.def mergeTwoLists(l1, l2):\n    dummy = ListNode(0)\n    curr = dummy\n    while l1 and l2:\n        ### FILL HERE ###\n    curr.next = l1 if l1 else l2\n    return dummy.next",
+        "A": "if l1.val <= l2.val: curr.next = l1; l1 = l1.next",
+        "B": "curr.next = None",
+        "C": "if l1 is None: break",
+        "D": "l2 = l1.next"
+        "correct_option": "A"
+    },
+    {
+        "id": 5,
+        "question": "Choose the correct pointer movement for binary search. def search(nums, target):\n    left, right = 0, len(nums) - 1\n    while left <= right:\n        mid = (left + right) // 2\n        if nums[mid] == target:\n            return mid\n        ### FILL HERE ###\n    return -1",
+        "A": "right = mid - 1 if target < nums[mid] else right",
+        "B": "left = mid - 1",
+        "C": "right = mid + 1",
+        "D": "left = mid + 1 if target > nums[mid] else left; right = right"
+        "correct_option": "A"
+    },
