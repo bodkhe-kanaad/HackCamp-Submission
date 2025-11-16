@@ -14,6 +14,9 @@ export default function Solve() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
 
+  // ---------------------------------------------
+  // Load today's question
+  // ---------------------------------------------
   useEffect(() => {
     async function loadQuestion() {
       setError("");
@@ -21,10 +24,7 @@ export default function Solve() {
       setChoice(null);
 
       const user_id = routeUserId || localStorage.getItem("user_id");
-      if (!user_id) {
-        nav("/signin");
-        return;
-      }
+      if (!user_id) return nav("/signin");
 
       try {
         const statusRes = await api.get(`/pair/status/${user_id}`);
@@ -48,14 +48,12 @@ export default function Solve() {
           throw new Error("Invalid question format received");
         }
 
-        const formatted = {
+        setQuestion({
           id: raw.id,
           title: "Daily Coding Challenge",
           description: raw.question,
           options: raw.options,
-        };
-
-        setQuestion(formatted);
+        });
       } catch (err) {
         console.error("Question fetch error:", err);
         setError("No question assigned yet.");
@@ -67,33 +65,25 @@ export default function Solve() {
     loadQuestion();
   }, [nav, routeUserId]);
 
+  // ---------------------------------------------
+  // Submit answer
+  // ---------------------------------------------
   async function submitAnswer() {
     const user_id = routeUserId || localStorage.getItem("user_id");
-    
-    if (!choice) {
-      alert("Please select an answer first");
-      return;
-    }
-
-    if (!question || !question.id) {
-      setError("Question data is missing");
-      return;
-    }
+    if (!choice) return alert("Please select an answer first");
+    if (!question?.id) return setError("Question data is missing");
 
     setSubmitting(true);
     setError("");
 
     try {
       const res = await api.post("/check-answer", {
-        user_id: user_id,
+        user_id,
         question_id: question.id,
-        choice: choice,
+        choice,
       });
 
-      const isCorrect = res.data.correct === true;
-
-      setSubmitResult(isCorrect);
-
+      setSubmitResult(res.data.correct === true);
     } catch (err) {
       console.error("Submit error:", err);
       setError("Failed to submit answer.");
@@ -102,6 +92,9 @@ export default function Solve() {
     }
   }
 
+  // ---------------------------------------------
+  // Render
+  // ---------------------------------------------
   return (
     <>
       <Navbar />
@@ -112,68 +105,92 @@ export default function Solve() {
         {loading && <p>Loading question...</p>}
         {error && <p style={{ color: "red" }}>{error}</p>}
 
-        {!loading && !error && question && question.options && typeof question.options === "object" && (
-          <div style={styles.card}>
-            <h3>{question.title}</h3>
-            <p>{question.description}</p>
+        {!loading &&
+          !error &&
+          question &&
+          question.options &&
+          typeof question.options === "object" && (
+            <>
+              <div style={styles.card}>
+                <h3>{question.title}</h3>
+                <p>{question.description}</p>
 
-            <div style={{ marginTop: "1rem" }}>
-              {Object.entries(question.options).map(([letter, text]) => (
-                <label key={letter} style={styles.option}>
-                  <input
-                    type="radio"
-                    name="mcq"
-                    value={letter}
-                    checked={choice === letter}
-                    onChange={() => setChoice(letter)}
-                    disabled={submitResult !== null}
-                  />
-                  <strong>{letter}.</strong> {text}
-                </label>
-              ))}
-            </div>
+                <div style={styles.optionsContainer}>
+                  {Object.entries(question.options).map(([letter, text]) => {
+                    const isSelected = choice === letter;
+                    return (
+                      <div
+                        key={letter}
+                        onClick={() => !submitResult && setChoice(letter)}
+                        style={{
+                          ...styles.optionCard,
+                          borderColor: isSelected ? "#3b82f6" : "#ccc",
+                          background: isSelected ? "#e8f0fe" : "white",
+                          opacity:
+                            submitResult && !isSelected ? 0.6 : 1,
+                        }}
+                      >
+                        <strong>{letter}.</strong>
+                        <span style={{ marginLeft: "0.5rem" }}>
+                          {text}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
 
-            <button
-              style={{
-                ...styles.btn,
-                opacity: (!choice || submitting) ? 0.5 : 1,
-                cursor: (!choice || submitting) ? "not-allowed" : "pointer",
-              }}
-              disabled={!choice || submitting}
-              onClick={submitAnswer}
-            >
-              {submitting ? "Submitting..." : "Submit Answer"}
-            </button>
-
-            {submitResult !== null && (
-              <div
+              <button
                 style={{
-                  marginTop: "1.5rem",
-                  padding: "1rem",
-                  borderRadius: "8px",
-                  backgroundColor: submitResult ? "#d4edda" : "#f8d7da",
-                  border: submitResult ? "2px solid #28a745" : "2px solid #dc3545",
+                  ...styles.btn,
+                  opacity: !choice || submitting ? 0.5 : 1,
+                  cursor:
+                    !choice || submitting ? "not-allowed" : "pointer",
                 }}
+                disabled={!choice || submitting}
+                onClick={submitAnswer}
               >
-                <p
+                {submitting ? "Submitting..." : "Submit Answer"}
+              </button>
+
+              {submitResult !== null && (
+                <div
                   style={{
-                    color: submitResult ? "#155724" : "#721c24",
-                    fontWeight: "bold",
-                    fontSize: "1.2rem",
-                    margin: 0,
+                    marginTop: "1.5rem",
+                    padding: "1rem",
+                    borderRadius: "8px",
+                    backgroundColor: submitResult
+                      ? "#d4edda"
+                      : "#f8d7da",
+                    border: submitResult
+                      ? "2px solid #28a745"
+                      : "2px solid #dc3545",
                   }}
                 >
-                  {submitResult ? "✓ Correct! 🎉" : "✗ Incorrect ❌"}
-                </p>
-              </div>
-            )}
-          </div>
-        )}
+                  <p
+                    style={{
+                      color: submitResult ? "#155724" : "#721c24",
+                      fontWeight: "bold",
+                      fontSize: "1.2rem",
+                      margin: 0,
+                    }}
+                  >
+                    {submitResult
+                      ? "✓ Correct! 🎉"
+                      : "✗ Incorrect ❌"}
+                  </p>
+                </div>
+              )}
+            </>
+          )}
       </div>
     </>
   );
 }
 
+// ---------------------------------------------
+// Styles
+// ---------------------------------------------
 const styles = {
   container: {
     width: "70%",
@@ -197,11 +214,23 @@ const styles = {
     fontSize: "1rem",
     fontWeight: "600",
   },
-  option: {
-    display: "block",
-    margin: "0.5rem 0",
-    textAlign: "left",
-    paddingLeft: "1rem",
+  optionsContainer: {
+    marginTop: "1rem",
+    display: "flex",
+    flexDirection: "column",
+    gap: "0.75rem",
+  },
+  optionCard: {
+    padding: "1rem",
+    borderRadius: "10px",
+    border: "2px solid #ccc",
     cursor: "pointer",
+    transition: "0.2s ease",
+    textAlign: "left",
+    display: "flex",
+    alignItems: "center",
+    fontSize: "1rem",
+    background: "white",
+    boxShadow: "0 1px 3px rgba(0,0,0,0.08)",
   },
 };
