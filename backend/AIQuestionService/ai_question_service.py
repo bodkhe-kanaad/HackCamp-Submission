@@ -3,6 +3,9 @@ from backend.AIQuestionService.llm_client import generate_llm_question
 from backend.AIQuestionService.ensemble_selector import choose_best_learning_goal
 
 
+# ---------------------------------------------------------
+# Generate + store a new AI question for a pair
+# ---------------------------------------------------------
 def generate_ai_question_for_pair(pair_id, course, week):
     conn = get_connection()
     cur = conn.cursor()
@@ -10,12 +13,12 @@ def generate_ai_question_for_pair(pair_id, course, week):
     # 1. Choose best learning goal (RAG + ML + embeddings)
     learning_goal = choose_best_learning_goal(course, week)
 
-    # 2. Generate question using local LLM
+    # 2. Generate multiple-choice question using local LLM
     qa = generate_llm_question(learning_goal)
 
-    # 3. Store into shared question table
+    # 3. Insert into shared question table
     cur.execute("""
-        INSERT INTO question (question,A, B, C, D, correct_option, source_type)
+        INSERT INTO "question" (question, a, b, c, d, correct_option, source_type)
         VALUES (%s, %s, %s, %s, %s, %s, 'ai')
         RETURNING id;
     """, (
@@ -40,6 +43,9 @@ def generate_ai_question_for_pair(pair_id, course, week):
     return qid
 
 
+# ---------------------------------------------------------
+# Retrieve today's AI question for a user
+# ---------------------------------------------------------
 def get_ai_question_for_user(user_id):
     conn = get_connection()
     cur = conn.cursor()
@@ -59,34 +65,44 @@ def get_ai_question_for_user(user_id):
 
     qid = row[0]
 
+    # Fetch question from shared table
     cur.execute("""
-        SELECT question, option_A, option_B, option_C, option_D
-        FROM question
-        WHERE id = %s;
+        SELECT question, a, b, c, d
+        FROM "question"
+        WHERE id = %s AND source_type='ai';
     """, (qid,))
     q = cur.fetchone()
 
     cur.close()
     conn.close()
 
+    if not q:
+        return None
+
     return {
         "id": qid,
         "question": q[0],
         "options": {
-            "A": q[1], "B": q[2], "C": q[3], "D": q[4]
+            "A": q[1],
+            "B": q[2],
+            "C": q[3],
+            "D": q[4]
         }
     }
 
 
+# ---------------------------------------------------------
+# Record a user's answer attempt (NOT correctness)
+# ---------------------------------------------------------
 def check_ai_answer(user_id, question_id, choice):
     conn = get_connection()
     cur = conn.cursor()
 
-    # 1. Get correct answer for feedback only
+    # 1. Retrieve correct answer (only for frontend feedback)
     cur.execute("""
         SELECT correct_option
-        FROM question
-        WHERE id=%s AND source_type='ai';
+        FROM "question"
+        WHERE id = %s AND source_type='ai';
     """, (question_id,))
     row = cur.fetchone()
 
@@ -97,19 +113,19 @@ def check_ai_answer(user_id, question_id, choice):
 
     correct = (row[0] == choice)
 
-    # 2. Get pair_id
-    cur.execute("SELECT pair_id FROM users WHERE user_id=%s;", (user_id,))
+    # 2. Identify user's pair
+    cur.execute("SELECT pair_id FROM users WHERE user_id = %s;", (user_id,))
     pid = cur.fetchone()[0]
 
-    # 3. Identify user slot (user1 or user2)
+    # 3. Identify whether user is user1 or user2
     cur.execute("""
         SELECT user1, user2
         FROM pair
-        WHERE pair_id=%s;
+        WHERE pair_id = %s;
     """, (pid,))
     user1, user2 = cur.fetchone()
 
-    # 4. Mark ATTEMPT — not correctness
+    # 4. Mark attempt — NOT correctness
     if user_id == user1:
         cur.execute("UPDATE pair SET user1_answered = TRUE WHERE pair_id=%s;", (pid,))
     else:
