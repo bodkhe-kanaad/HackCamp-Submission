@@ -230,6 +230,7 @@ const styles = {
     width: "90%",
     maxWidth: "700px",
     margin: "2rem auto",
+    paddingTop: "30px"
   },
 
   pageTitle: {
