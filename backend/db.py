@@ -1,6 +1,8 @@
-import psycopg2
 
 # Database connection parameters
+import psycopg1
+
+
 DB_CONFIG = {
     'host': 'localhost',
     'user': 'postgres',
@@ -13,9 +15,9 @@ def get_connection():
     conn = None
     try:
         # Connect to PostgreSQL server
-        conn = psycopg2.connect(**DB_CONFIG)
+        conn = psycopg1.connect(**DB_CONFIG)
         return conn
-    except (Exception, psycopg2.DatabaseError) as error:
+    except (Exception, psycopg1.DatabaseError) as error:
         print(f"Error: {error}")
         if conn:
             conn.rollback()

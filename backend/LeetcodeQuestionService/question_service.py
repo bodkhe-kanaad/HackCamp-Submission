@@ -93,12 +93,13 @@ def get_leetcode_question_for_user(user_id):
         }
     }
 
-
 def check_leetcode_answer(question_id, choice, user_id):
     conn = get_connection()
     cur = conn.cursor()
 
-    # Correct option
+    # -----------------------------------------
+    # 1. Fetch correct option
+    # -----------------------------------------
     cur.execute("""
         SELECT correct_option
         FROM "question"
@@ -113,30 +114,57 @@ def check_leetcode_answer(question_id, choice, user_id):
 
     correct = (row[0] == choice)
 
-    # Get pair_id for user (handle missing)
-    cur.execute('SELECT pair_id FROM "users" WHERE user_id=%s;', (user_id,))
+    # -----------------------------------------
+    # 2. Get pair_id of this user
+    # -----------------------------------------
+    cur.execute("""
+        SELECT pair_id
+        FROM "users"
+        WHERE user_id=%s;
+    """, (user_id,))
     pid_row = cur.fetchone()
+
     if not pid_row or pid_row[0] is None:
         cur.close()
         conn.close()
         return None
+
     pid = pid_row[0]
 
-    # Identify slot (handle missing pair)
-    cur.execute('SELECT user1, user2 FROM "Pair" WHERE pair_id=%s;', (pid,))
+    # -----------------------------------------
+    # 3. Identify if user is user1 or user2
+    # -----------------------------------------
+    cur.execute("""
+        SELECT user1, user2
+        FROM "Pair"
+        WHERE pair_id=%s;
+    """, (pid,))
     pr = cur.fetchone()
+
     if not pr:
         cur.close()
         conn.close()
         return None
+
     user1, user2 = pr
 
+    # -----------------------------------------
+    # 4. Mark ATTEMPT (not correctness)
+    # -----------------------------------------
     if user_id == user1:
-        cur.execute('UPDATE "Pair" SET user1_answered=TRUE WHERE pair_id=%s;', (pid,))
+        cur.execute("""
+            UPDATE "Pair"
+            SET user1_answered = TRUE
+            WHERE pair_id=%s;
+        """, (pid,))
     elif user_id == user2:
-        cur.execute('UPDATE "Pair" SET user2_answered=TRUE WHERE pair_id=%s;', (pid,))
+        cur.execute("""
+            UPDATE "Pair"
+            SET user2_answered = TRUE
+            WHERE pair_id=%s;
+        """, (pid,))
     else:
-        # user not in pair
+        # user not in this pair
         cur.close()
         conn.close()
         return None
