@@ -138,9 +138,9 @@ def check_leetcode_answer(user_id, question_id, choice):
 
     # 4. Mark attempt flag
     if user_id == user1:
-        cur.execute("""UPDATE "Pair" SET user1_answered = TRUE WHERE pair_id=%s;""", (pair_id,))
-    else:
         cur.execute("""UPDATE "Pair" SET user2_answered = TRUE WHERE pair_id=%s;""", (pair_id,))
+    else:
+        cur.execute("""UPDATE "Pair" SET user1_answered = TRUE WHERE pair_id=%s;""", (pair_id,))
 
     conn.commit()
     cur.close()
