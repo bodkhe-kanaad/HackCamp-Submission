@@ -88,12 +88,17 @@ def get_question_for_user(user_id):
     )
     row = cur.fetchone()
 
-    if not row or row[0] is None:
+    if not row:
         cur.close()
         conn.close()
-        return None  # user is not paired
+        return {"error": "User not found"}
 
     pair_id = row[0]
+
+    if pair_id is None:
+        cur.close()
+        conn.close()
+        return {"error": "User is not paired"}
 
     # Step 2. Get the pair's current question
     cur.execute(
@@ -103,7 +108,7 @@ def get_question_for_user(user_id):
     row = cur.fetchone()
     assigned_qid = row[0] if row else None
 
-    # CASE 1. Pair already has a question
+    # CASE 1. Pair already has a question and it exists
     if assigned_qid is not None:
         cur.execute(
             'SELECT id, question, A, B, C, D FROM "question" WHERE id = %s;',
@@ -123,14 +128,14 @@ def get_question_for_user(user_id):
             conn.close()
             return q
 
-    # CASE 2. No question assigned → generate one
+    # CASE 2. No question assigned or question doesn't exist → generate one
     cur.execute('SELECT COUNT(*) FROM "question";')
     total = cur.fetchone()[0]
     
     if total == 0:
         cur.close()
         conn.close()
-        return None
+        return {"error": "No questions available"}
 
     cur.execute('SELECT id FROM "question" ORDER BY RANDOM() LIMIT 1;')
     q_row = cur.fetchone()
