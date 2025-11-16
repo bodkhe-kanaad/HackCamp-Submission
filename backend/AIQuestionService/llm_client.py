@@ -7,10 +7,15 @@ from openai import OpenAI
 # -----------------------------------------------------
 # CONFIG
 # -----------------------------------------------------
-OPENAI_API_KEY = "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"
-MODEL_NAME = "gpt-4o-mini"    # fast + good
-MAX_TOKENS = 300
+from dotenv import load_dotenv
+import os
 
+load_dotenv()  # THIS MUST BE FIRST
+
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+
+if not OPENAI_API_KEY:
+    raise RuntimeError("OPENAI_API_KEY is not set!")
 client = OpenAI(api_key=OPENAI_API_KEY)
 
 # -----------------------------------------------------
