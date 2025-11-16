@@ -15,12 +15,12 @@ export default function SignIn() {
 
     try {
       const res = await api.post("/login", {
-        email,
-        password
+        "username":email,
+        "password":password
       });
 
       // backend returns true or false
-      const success = res.data === true;
+      const success = res.data.authenticated === true;
 
       if (!success) {
         setError("Invalid email or password.");

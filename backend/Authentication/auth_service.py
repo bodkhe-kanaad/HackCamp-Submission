@@ -17,7 +17,7 @@ def authenticate_user(username, password):
     conn.close()
 
     # Return True if user exists, False otherwise
-    return user is not None
+    return user
 
 
 def create_user(data):

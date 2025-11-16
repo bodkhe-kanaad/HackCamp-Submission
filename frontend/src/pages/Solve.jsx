@@ -12,7 +12,7 @@ export default function Solve() {
   useEffect(() => {
     const load = async () => {
       try {
-        const res = await api.get(`/get_question/${userId}`);
+        const res = await api.get(`/todays-task/${userId}`);
         setQuestion(res.data);
       } catch (err) {
         console.error(err);

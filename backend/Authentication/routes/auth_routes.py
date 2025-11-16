@@ -10,9 +10,12 @@ def login():
     password = data.get("password")
 
     # Calls the authentication function
-    valid = authenticate_user(username, password)
-
-    return jsonify({"authenticated": valid})
+    user = authenticate_user(username, password)
+    valid = user is not None
+    if valid:
+        return jsonify({"authenticated": valid, 'user_id': user[0]})
+    else:
+        return jsonify({"authenticated": valid})
 
 @auth_bp.post("/signup")
 def signup():
