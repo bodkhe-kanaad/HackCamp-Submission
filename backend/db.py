@@ -5,7 +5,8 @@ DB_CONFIG = {
     'host': 'localhost',
     'user': 'postgres',
     'password': 'your_password',
-    'port': 5432
+    'port': 5432,
+    'database': 'hackcamp'
 }
 
 def get_connection():
