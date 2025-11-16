@@ -22,7 +22,7 @@ def generate_ai_question_for_pair(pair_id, course, week):
         VALUES (%s, %s, %s, %s, %s, %s, 'ai')
         RETURNING id;
     """, (
-        qa["question"], qa["A"], qa["B"], qa["C"], qa["D"], qa["correct"]
+        qa["question"], qa["A"], qa["B"], qa["C"], qa["D"], qa["correct_option"]
     ))
 
     qid = cur.fetchone()[0]
