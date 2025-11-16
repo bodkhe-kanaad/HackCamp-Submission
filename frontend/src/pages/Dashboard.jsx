@@ -5,8 +5,10 @@ import { api } from "../services/api";
 export default function Dashboard() {
   const [user, setUser] = useState(null);
   const [match, setMatch] = useState(null);
+
   const [loadingUser, setLoadingUser] = useState(true);
   const [loadingPair, setLoadingPair] = useState(false);
+
   const [error, setError] = useState("");
   const [pairError, setPairError] = useState("");
 
@@ -34,7 +36,24 @@ export default function Dashboard() {
       }
     }
 
+    async function fetchPairStatus() {
+      const id = localStorage.getItem("user_id");
+      if (!id) return;
+
+      try {
+        const res = await api.get(`/pair/status/${id}`);
+
+        // If already paired on backend
+        if (res.data && res.data.pair_id !== null) {
+          setMatch(res.data);
+        }
+      } catch (err) {
+        console.error("Error fetching pair status:", err);
+      }
+    }
+
     fetchUser();
+    fetchPairStatus();
   }, []);
 
   async function handlePair() {
@@ -45,7 +64,7 @@ export default function Dashboard() {
 
     try {
       const res = await api.post("/pair", { user_id: id });
-      setMatch(res.data);
+      setMatch(res.data); // backend returns match object
     } catch (err) {
       console.error(err);
       setPairError("Pairing failed. Try again later.");
@@ -79,24 +98,46 @@ export default function Dashboard() {
               {Array.isArray(user.interests) ? user.interests.join(", ") : "None"}
             </p>
 
-            <button
-              style={styles.btn}
-              onClick={handlePair}
-              disabled={loadingPair}
-            >
-              {loadingPair ? "Pairing..." : "Pair Me"}
-            </button>
+            {/* Show Pair Me button ONLY if NOT already paired */}
+            {!match && (
+              <button
+                style={styles.btn}
+                onClick={handlePair}
+                disabled={loadingPair}
+              >
+                {loadingPair ? "Pairing..." : "Pair Me"}
+              </button>
+            )}
 
             {pairError && <p style={{ color: "red" }}>{pairError}</p>}
           </div>
         )}
 
+        {/* Show match card ONLY when the user is paired */}
         {match && (
           <div style={styles.matchCard}>
             <h3>🎉 You’ve been paired!</h3>
-            <p><strong>Partner:</strong> {match.partner_username}</p>
-            <p><strong>Courses:</strong> {match.partner_courses.join(", ")}</p>
-            <p><strong>Interests:</strong> {match.partner_interests.join(", ")}</p>
+
+            <p><strong>Partner:</strong> {match.partner_username || "Unknown"}</p>
+
+            <p>
+              <strong>Courses:</strong>{" "}
+              {(match.partner_courses || []).length > 0
+                ? match.partner_courses.join(", ")
+                : "No courses provided"}
+            </p>
+
+            <p>
+              <strong>Interests:</strong>{" "}
+              {(match.partner_interests || []).length > 0
+                ? match.partner_interests.join(", ")
+                : "No interests provided"}
+            </p>
+
+            {/* Today’s Task can just live inside match card */}
+            <button style={styles.taskBtn}>
+              View Today's Task
+            </button>
           </div>
         )}
       </div>
@@ -122,6 +163,16 @@ const styles = {
     border: "none",
     cursor: "pointer",
     marginTop: "1rem"
+  },
+
+  taskBtn: {
+    background: "#10b981",
+    color: "#fff",
+    padding: "0.75rem 1.25rem",
+    borderRadius: "10px",
+    border: "none",
+    cursor: "pointer",
+    marginTop: "1.5rem"
   },
 
   matchCard: {
