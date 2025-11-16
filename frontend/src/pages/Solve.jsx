@@ -12,15 +12,13 @@ export default function Solve() {
   const [submitResult, setSubmitResult] = useState(null);
   const [error, setError] = useState("");
 
-  //  Step 1 — Fetch today's question automatically
+  // Step 1 — Fetch today's question automatically
   useEffect(() => {
     async function loadQuestion() {
       setError("");
       setSubmitResult(null);
 
       const user_id = localStorage.getItem("user_id");
-
-      // not logged in
       if (!user_id) {
         nav("/signin");
         return;
@@ -39,13 +37,24 @@ export default function Solve() {
         return;
       }
 
-      // fetch actual question
+      // fetch question
       try {
         const res = await api.get(`/todays-task/${user_id}`);
-        setQuestion(res.data);
+
+        const raw = res.data;
+
+        // 🔥 TRANSFORM THE BACKEND QUESTION INTO FRONTEND FORMAT
+        const formatted = {
+          id: raw.id,
+          title: "Daily Coding Challenge",
+          description: raw.question,
+          options: [raw.A, raw.B, raw.C, raw.D]
+        };
+
+        setQuestion(formatted);
       } catch (err) {
         console.error(err);
-        setError("No question assigned yet. Ask your partner to complete pairing.");
+        setError("No question assigned yet.");
       } finally {
         setLoading(false);
       }
@@ -54,10 +63,9 @@ export default function Solve() {
     loadQuestion();
   }, [nav]);
 
-  // 🔥 Step 2 — Submit the answer
+  // Step 2 — Submit answer
   async function submitAnswer() {
     const user_id = localStorage.getItem("user_id");
-
     if (!choice) return;
 
     try {
@@ -82,7 +90,6 @@ export default function Solve() {
         <h2>Today's Challenge</h2>
 
         {loading && <p>Loading question...</p>}
-
         {error && <p style={{ color: "red" }}>{error}</p>}
 
         {question && !loading && (
@@ -90,13 +97,12 @@ export default function Solve() {
             <h3>{question.title}</h3>
             <p>{question.description}</p>
 
-            {/* Options */}
             <div style={{ marginTop: "1rem" }}>
               {question.options.map((opt, index) => (
                 <label key={index} style={styles.option}>
-                  <input 
-                    type="radio" 
-                    name="mcq" 
+                  <input
+                    type="radio"
+                    name="mcq"
                     value={opt}
                     onChange={() => setChoice(opt)}
                   />
@@ -105,18 +111,21 @@ export default function Solve() {
               ))}
             </div>
 
-            {/* Submit button */}
-            <button 
-              style={styles.btn} 
-              disabled={!choice} 
+            <button
+              style={styles.btn}
+              disabled={!choice}
               onClick={submitAnswer}
             >
               Submit Answer
             </button>
 
-            {/* Result */}
             {submitResult !== null && (
-              <p style={{ color: submitResult ? "green" : "red", marginTop: "1rem" }}>
+              <p
+                style={{
+                  color: submitResult ? "green" : "red",
+                  marginTop: "1rem"
+                }}
+              >
                 {submitResult ? "Correct! 🎉" : "Incorrect ❌"}
               </p>
             )}

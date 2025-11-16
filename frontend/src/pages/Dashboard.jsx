@@ -85,19 +85,30 @@ export default function Dashboard() {
           <div style={styles.card}>
             <h3>Hello, {user.username} 👋</h3>
 
-            <p><strong>Courses:</strong> {user.courses.join(", ")}</p>
-            <p><strong>Interests:</strong> {user.interests.join(", ")}</p>
+            <p>
+              <strong>Courses:</strong> {user.courses.join(", ")}
+            </p>
+            <p>
+              <strong>Interests:</strong> {user.interests.join(", ")}
+            </p>
 
             {/* If unpaired → show Pair Me */}
             {!pairBasic && (
-              <button style={styles.btn} onClick={handlePair} disabled={loadingPair}>
+              <button
+                style={styles.btn}
+                onClick={handlePair}
+                disabled={loadingPair}
+              >
                 {loadingPair ? "Pairing..." : "Pair Me"}
               </button>
             )}
 
             {/* If paired → show task button */}
             {pairBasic && (
-              <button style={styles.taskBtn} onClick={() => nav("/solve")}>
+              <button
+                style={styles.taskBtn}
+                onClick={() => nav("/solve")}
+              >
                 Today's Task
               </button>
             )}
@@ -106,19 +117,23 @@ export default function Dashboard() {
           </div>
         )}
 
-        {/* SHOW PARTNER INFORMATION IF AVAILABLE */}
+        {/* SHOW PARTNER INFO */}
         {pairFull && (
           <div style={styles.matchCard}>
             <h3>🎉 You’re paired!</h3>
 
-            <p><strong>Partner:</strong> {pairFull.partner_username}</p>
+            <p>
+              <strong>Partner:</strong> {pairFull.partner.username}
+            </p>
+
             <p>
               <strong>Courses:</strong>{" "}
-              {pairFull.partner_courses.join(", ")}
+              {pairFull.partner.courses.join(", ")}
             </p>
+
             <p>
               <strong>Interests:</strong>{" "}
-              {pairFull.partner_interests.join(", ")}
+              {pairFull.partner.interests.join(", ")}
             </p>
           </div>
         )}
