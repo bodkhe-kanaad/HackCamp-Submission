@@ -227,15 +227,18 @@ function Toggle({ value, onChange }) {
 const styles = {
   page: {
     minHeight: "100vh",
+    width: "100%",
     background: "linear-gradient(135deg, #eef2ff, #fdf2f8, #ecfdf5)",
-    paddingTop: "2rem",
-    display: "flex",
-    justifyContent: "center",
+    padding: "2rem 0",
+    display: "block",
   },
 
   container: {
-    width: "90%",
-    maxWidth: "650px",
+    width: "95%",
+    maxWidth: "680px",
+    margin: "0 auto",
+    padding: "0 1rem",
+    boxSizing: "border-box",
   },
 
   title: {
@@ -256,6 +259,7 @@ const styles = {
     background: "#e5e7eb",
     borderRadius: "14px",
     animation: "pulse 1.5s infinite",
+    marginBottom: "1.5rem",
   },
 
   card: {
