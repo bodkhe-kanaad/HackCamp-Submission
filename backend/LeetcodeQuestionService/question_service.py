@@ -110,7 +110,7 @@ def check_leetcode_answer(user_id, question_id, choice):
     if not row:
         cur.close()
         conn.close()
-        return None
+        return {"error": "user not in pair"}
 
     pair_id, user1, user2, u1_done, u2_done = row
 
@@ -124,17 +124,17 @@ def check_leetcode_answer(user_id, question_id, choice):
     cur.execute("""
         SELECT correct_option
         FROM "question"
-        WHERE id = %s AND source_type = 'leetcode';
+        WHERE id = %s AND source_type='leetcode';
     """, (question_id,))
     row = cur.fetchone()
 
     if not row:
         cur.close()
         conn.close()
-        return None
+        return {"error": "question not found"}
 
     correct_option = row[0]
-    correct = (correct_option == choice)
+    is_correct = (correct_option == choice)
 
     # 4. Mark attempt flag
     if user_id == user1:
@@ -146,4 +146,4 @@ def check_leetcode_answer(user_id, question_id, choice):
     cur.close()
     conn.close()
 
-    return {"correct": correct}
+    return {"correct": is_correct}

@@ -112,22 +112,26 @@ def check_answer_route():
     question_id = data.get("question_id")
     choice = data.get("choice")
 
+    # -------------------------------------------------------
+    # 0. Validate Input
+    # -------------------------------------------------------
     if not user_id or not question_id or not choice:
         return jsonify({"error": "user_id, question_id, and choice required"}), 400
 
     try:
         question_id = int(question_id)
-    except:
-        return jsonify({"error": "question_id must be integer"}), 400
+    except ValueError:
+        return jsonify({"error": "question_id must be an integer"}), 400
 
+    # -------------------------------------------------------
+    # 1. Check user belongs to a pair + retrieve flags
+    # -------------------------------------------------------
     conn = get_connection()
     cur = conn.cursor()
 
-    # -----------------------------------------
-    # 1. Ensure user belongs to a pair + get flags
-    # -----------------------------------------
     cur.execute("""
-        SELECT p.pair_id, p.user1, p.user2, p.user1_answered, p.user2_answered
+        SELECT p.pair_id, p.user1, p.user2,
+               p.user1_answered, p.user2_answered
         FROM "Pair" p
         JOIN users u ON u.pair_id = p.pair_id
         WHERE u.user_id = %s;
@@ -139,44 +143,52 @@ def check_answer_route():
         conn.close()
         return jsonify({"error": "user not in a pair"}), 404
 
-    pair_id, user1, user2, u1_done, u2_done = row
+    pair_id, user1, user2, user1_done, user2_done = row
 
-    # -----------------------------------------
-    # 2. BLOCK if already attempted
-    # -----------------------------------------
-    if (user_id == user1 and u1_done) or (user_id == user2 and u2_done):
+    # -------------------------------------------------------
+    # 2. BLOCK DOUBLE ATTEMPT
+    # -------------------------------------------------------
+    if (user_id == user1 and user1_done) or (user_id == user2 and user2_done):
         cur.close()
         conn.close()
         return jsonify({"error": "already attempted today's task"}), 403
 
-    # -----------------------------------------
-    # 3. Determine question source_type
-    # -----------------------------------------
+    # -------------------------------------------------------
+    # 3. Determine question source type
+    # -------------------------------------------------------
     cur.execute("""SELECT source_type FROM "question" WHERE id=%s;""", (question_id,))
-    row = cur.fetchone()
+    src_row = cur.fetchone()
 
-    if not row:
+    if not src_row:
         cur.close()
         conn.close()
         return jsonify({"error": "question not found"}), 404
 
-    source = row[0]
-
-    # -----------------------------------------
-    # 4. Check answer depending on source
-    # -----------------------------------------
-    if source == "leetcode":
-        correct = check_leetcode_answer(question_id, choice, user_id)
-    elif source == "ai":
-        correct = check_ai_answer(user_id, question_id, choice)
-    else:
-        cur.close()
-        conn.close()
-        return jsonify({"error": "invalid question source"}), 400
+    source_type = src_row[0]
 
     cur.close()
     conn.close()
 
-    return jsonify({"correct": correct})
+    # -------------------------------------------------------
+    # 4. Route to correct checking function
+    #    IMPORTANT: each returns dict { "correct": bool } or { "error": "..." }
+    # -------------------------------------------------------
+    if source_type == "leetcode":
+        result = check_leetcode_answer(user_id, question_id, choice)
+    elif source_type == "ai":
+        result = check_ai_answer(user_id, question_id, choice)
+    else:
+        return jsonify({"error": "invalid question source"}), 400
 
+    # -------------------------------------------------------
+    # 5. Handle errors returned by helper functions
+    # -------------------------------------------------------
+    if "error" in result:
+        # Already attempted or invalid question
+        return jsonify(result), 403
+
+    # -------------------------------------------------------
+    # 6. SUCCESS → return correctness result
+    # -------------------------------------------------------
+    return jsonify(result)
 

@@ -192,7 +192,7 @@ def check_ai_answer(user_id, question_id, choice):
     if not row:
         cur.close()
         conn.close()
-        return None
+        return {"error": "user not in pair"}
 
     pair_id, user1, user2, u1_done, u2_done = row
 
@@ -202,23 +202,23 @@ def check_ai_answer(user_id, question_id, choice):
         conn.close()
         return {"error": "already attempted today's task"}
 
-    # 3. Fetch correct option
+    # 3. Get correct answer
     cur.execute("""
         SELECT correct_option
         FROM "question"
-        WHERE id = %s AND source_type = 'ai';
+        WHERE id=%s AND source_type='ai';
     """, (question_id,))
     row = cur.fetchone()
 
     if not row:
         cur.close()
         conn.close()
-        return None
+        return {"error": "question not found"}
 
     correct_option = row[0]
-    correct = (correct_option == choice)
+    is_correct = (correct_option == choice)
 
-    # 4. Mark attempt flag
+    # 4. Mark attempt
     if user_id == user1:
         cur.execute("""UPDATE "Pair" SET user1_answered = TRUE WHERE pair_id=%s;""", (pair_id,))
     else:
@@ -228,4 +228,4 @@ def check_ai_answer(user_id, question_id, choice):
     cur.close()
     conn.close()
 
-    return {"correct": correct}
+    return {"correct": is_correct}
