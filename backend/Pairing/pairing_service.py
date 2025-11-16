@@ -218,10 +218,11 @@ def get_pairmate_details(user_id):
 
     # 2. Get both users in the pair
     cur.execute(
-        'SELECT user1, user2 FROM "Pair" WHERE pair_id = %s;',
+        'SELECT user1, user2, ai_mode FROM "Pair" WHERE pair_id = %s;',
         (pair_id,)
     )
     pair_row = cur.fetchone()
+    user1_id, user2_id, ai_mode = pair_row
 
     if not pair_row:
         cur.close()
@@ -271,5 +272,6 @@ def get_pairmate_details(user_id):
     return {
         "pair_id": pair_id,
         "partner": user_partner,
-        "similarity_score": similarity
+        "similarity_score": similarity,
+        "ai_mode": ai_mode
     }

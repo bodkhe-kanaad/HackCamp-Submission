@@ -8,11 +8,12 @@ export default function Dashboard() {
 
   const [user, setUser] = useState(null);
   const [pairBasic, setPairBasic] = useState(null);
-  const [pairFull, setPairFull] = useState(null);
+  const [pairFull, setPairFull] = useState(null); // includes ai_mode now
   const [loadingUser, setLoadingUser] = useState(true);
   const [loadingPair, setLoadingPair] = useState(false);
   const [error, setError] = useState("");
   const [pairError, setPairError] = useState("");
+  const [togglingMode, setTogglingMode] = useState(false);
 
   useEffect(() => {
     async function loadEverything() {
@@ -37,7 +38,7 @@ export default function Dashboard() {
         if (res.data.pair_id !== null) {
           setPairBasic(res.data);
 
-          // Now fetch full partner info
+          // Fetch full pairmate info, which now includes ai_mode
           const mate = await api.get(`/pair/mate/${id}`);
           setPairFull(mate.data);
         }
@@ -61,7 +62,7 @@ export default function Dashboard() {
       const res = await api.post("/pair", { user_id: id });
       setPairBasic(res.data);
 
-      // fetch partner details now
+      // fetch partner details now (includes ai_mode)
       const mate = await api.get(`/pair/mate/${id}`);
       setPairFull(mate.data);
     } catch (err) {
@@ -69,6 +70,33 @@ export default function Dashboard() {
     }
 
     setLoadingPair(false);
+  }
+
+  // 🔥 NEW: Toggle AI mode
+  async function toggleAIMode(e) {
+    const newValue = e.target.checked;
+    const user_id = localStorage.getItem("user_id");
+
+    if (!pairFull) return;
+
+    setTogglingMode(true);
+
+    try {
+      await api.post("/pair/toggle-mode", {
+        user_id: user_id,
+        ai_mode: newValue,
+      });
+
+      // Update UI
+      setPairFull((prev) => ({
+        ...prev,
+        ai_mode: newValue,
+      }));
+    } catch (err) {
+      console.error("AI toggle failed:", err);
+    }
+
+    setTogglingMode(false);
   }
 
   return (
@@ -103,46 +131,32 @@ export default function Dashboard() {
               </button>
             )}
 
-            {/* If paired → AI toggle */}
-            {pairBasic && pairFull && (
-              <div style={{ marginTop: "1.5rem" }}>
-                <label style={{ fontWeight: "bold" }}>
-                  AI Mode:
-                  <input
-                    type="checkbox"
-                    checked={pairFull.ai_mode === true}
-                    onChange={async (e) => {
-                      const newMode = e.target.checked;
-                      try {
-                        await api.post("/pair/toggle-mode", {
-                          user_id: user.user_id,
-                          ai_mode: newMode
-                        });
-
-                        // update UI immediately
-                        setPairFull({
-                          ...pairFull,
-                          ai_mode: newMode
-                        });
-                      } catch (err) {
-                        console.error(err);
-                        alert("Failed to toggle AI mode.");
-                      }
-                    }}
-                    style={{ marginLeft: "0.75rem" }}
-                  />
-                </label>
-              </div>
-            )}
-
-            {/* If paired → show task button */}
+            {/* If paired → show Today's Task button */}
             {pairBasic && (
-              <button
-                style={styles.taskBtn}
-                onClick={() => nav(`/solve/${user.user_id}`)}
-              >
-                Today's Task
-              </button>
+              <>
+                <button
+                  style={styles.taskBtn}
+                  onClick={() => nav(`/solve/${user.user_id}`)}
+                >
+                  Today's Task
+                </button>
+
+                {/* 🔥 AI MODE TOGGLE */}
+                {pairFull && (
+                  <div style={{ marginTop: "1rem" }}>
+                    <label style={{ fontSize: "1rem", cursor: "pointer" }}>
+                      <input
+                        type="checkbox"
+                        checked={pairFull.ai_mode === true}
+                        onChange={toggleAIMode}
+                        disabled={togglingMode}
+                        style={{ marginRight: "0.5rem" }}
+                      />
+                      AI Mode
+                    </label>
+                  </div>
+                )}
+              </>
             )}
 
             {pairError && <p style={{ color: "red" }}>{pairError}</p>}
@@ -167,6 +181,15 @@ export default function Dashboard() {
               <strong>Interests:</strong>{" "}
               {pairFull.partner.interests.join(", ")}
             </p>
+
+            <p>
+              <strong>Similarity Score:</strong> {pairFull.similarity_score}
+            </p>
+
+            <p>
+              <strong>AI Mode:</strong>{" "}
+              {pairFull.ai_mode ? "ON 🤖" : "OFF 👤"}
+            </p>
           </div>
         )}
       </div>
@@ -184,7 +207,7 @@ const styles = {
     color: "#fff",
     border: "none",
     borderRadius: "10px",
-    cursor: "pointer"
+    cursor: "pointer",
   },
   taskBtn: {
     marginTop: "1rem",
@@ -193,12 +216,12 @@ const styles = {
     color: "#fff",
     border: "none",
     borderRadius: "10px",
-    cursor: "pointer"
+    cursor: "pointer",
   },
   matchCard: {
     background: "#d1fae5",
     padding: "1.5rem",
     borderRadius: "12px",
-    marginTop: "2rem"
-  }
+    marginTop: "2rem",
+  },
 };
