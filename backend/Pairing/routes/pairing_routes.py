@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from Pairing.pairing_service import pair_user, get_paired_user
+from Pairing.pairing_service import pair_user, get_unpaired_users
 
 pair_bp = Blueprint("pair_bp", __name__)
 
@@ -14,5 +14,5 @@ def pair():
 
 @pair_bp.get("/status/<int:user_id>")
 def status(user_id):
-    partner_id = get_paired_user(user_id)
+    partner_id = get_unpaired_users(user_id)
     return jsonify({"partner_id": partner_id})

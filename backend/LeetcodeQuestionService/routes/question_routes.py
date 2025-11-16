@@ -1,4 +1,5 @@
 from flask import Blueprint, jsonify, request
+import LeetcodeQuestionService.question_service
 from question_service import get_random_question, check_answer
 
 question_bp = Blueprint("question_bp", __name__)

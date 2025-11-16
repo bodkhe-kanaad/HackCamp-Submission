@@ -8,24 +8,23 @@
 //     }
 //   }
   
-
 import { useEffect, useState } from "react";
 import { api } from "../services/api";
-import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
+import { useNavigate } from "react-router-dom";
 
 export default function Matching() {
+  const [partnerId, setPartnerId] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [match, setMatch] = useState(null);
   const nav = useNavigate();
 
   useEffect(() => {
-    async function find() {
-      const res = await api.post("/match");
-      setMatch(res.data.match);
+    async function pair() {
+      const res = await api.post("/pair", { user_id: 1 }); 
+      setPartnerId(res.data.partner_id);
       setLoading(false);
     }
-    find();
+    pair();
   }, []);
 
   if (loading) return <p>Finding a study buddy...</p>;
@@ -33,12 +32,8 @@ export default function Matching() {
   return (
     <>
       <Navbar />
-
       <div style={{ padding: "2rem", textAlign: "center" }}>
-        <h2>You got matched!</h2>
-        <p>Partner: {match.name}</p>
-        <p>Reason: {match.reason}</p>
-
+        <h2>You're paired with user {partnerId}</h2>
         <button onClick={() => nav("/dashboard")}>Continue</button>
       </div>
     </>

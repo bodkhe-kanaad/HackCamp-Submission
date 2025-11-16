@@ -1,115 +1,89 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import Navbar from "../components/Navbar";
-import { getRandomQuestion, checkAnswer } from "../services/question";
+import { api } from "../services/api";
 
 export default function Solve() {
-  const { problemId } = useParams();
-
+  const { userId } = useParams();
   const [question, setQuestion] = useState(null);
-  const [selected, setSelected] = useState(null);
-  const [result, setResult] = useState(null); // "correct" | "wrong"
   const [loading, setLoading] = useState(true);
+  const [selected, setSelected] = useState(null);
 
   useEffect(() => {
-    async function loadQ() {
-      const q = await getRandomQuestion();
-      setQuestion(q);
-      setLoading(false);
-    }
-    loadQ();
-  }, []);
+    const load = async () => {
+      try {
+        const res = await api.get(`/get_question/${userId}`);
+        setQuestion(res.data);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    load();
+  }, [userId]);
 
-  if (loading) return <p>Loading question...</p>;
+  if (loading) return <div>Loading question…</div>;
+  if (!question) return <div>No question found.</div>;
+
+  const options = [
+    { key: "option_a", text: question.option_a },
+    { key: "option_b", text: question.option_b },
+    { key: "option_c", text: question.option_c },
+    { key: "option_d", text: question.option_d },
+  ];
 
   return (
-    <>
-      <Navbar />
+    <div>
+      <Navbar center="Solve Challenge" />
 
-      <div style={styles.wrapper}>
-        <h2>{question.title}</h2>
+      <div style={styles.container}>
+        <h2>{question.question_text}</h2>
 
-        <pre style={styles.code}>{question.code}</pre>
-
-        <div style={styles.options}>
-          {Object.entries(question.options).map(([letter, text]) => (
-            <button
-              key={letter}
+        <div style={{ marginTop: 20 }}>
+          {options.map((opt) => (
+            <div
+              key={opt.key}
+              onClick={() => setSelected(opt.key)}
               style={{
-                ...styles.optionBtn,
-                background:
-                  selected === letter ? "#3b82f6" : "#f1f1f1",
-                color: selected === letter ? "white" : "black",
+                padding: "12px",
+                borderRadius: "8px",
+                border: "1px solid #ccc",
+                marginBottom: "10px",
+                cursor: "pointer",
+                background: selected === opt.key ? "#dbeafe" : "white"
               }}
-              onClick={() => setSelected(letter)}
             >
-              {letter}. {text}
-            </button>
+              {opt.text}
+            </div>
           ))}
         </div>
 
         <button
-          style={styles.submitBtn}
-          onClick={async () => {
-            if (!selected) return;
-            const correct = await checkAnswer(question.id, selected);
-            setResult(correct ? "correct" : "wrong");
-          }}
+          style={styles.btn}
+          onClick={() => alert(`You selected: ${selected}`)}
         >
-          Submit
+          Submit (demo only)
         </button>
-
-        {result === "correct" && (
-          <p style={{ color: "green", fontWeight: "bold" }}>
-            ✅ Correct! Great job.
-          </p>
-        )}
-
-        {result === "wrong" && (
-          <p style={{ color: "red", fontWeight: "bold" }}>
-            ❌ Incorrect — try again.
-          </p>
-        )}
       </div>
-    </>
+    </div>
   );
 }
 
 const styles = {
-  wrapper: {
-    maxWidth: "700px",
+  container: {
+    width: "90%",
+    maxWidth: "600px",
     margin: "2rem auto",
-    padding: "1rem"
   },
-  code: {
-    background: "#f7f7f7",
-    padding: "1rem",
-    borderRadius: "8px",
-    whiteSpace: "pre-wrap",
-  },
-  options: {
-    marginTop: "1rem",
-    display: "flex",
-    flexDirection: "column",
-    gap: "0.75rem"
-  },
-  optionBtn: {
-    padding: "0.75rem",
-    borderRadius: "8px",
-    border: "1px solid #ddd",
-    textAlign: "left",
-    cursor: "pointer",
-    fontSize: "1rem",
-  },
-  submitBtn: {
-    marginTop: "1.5rem",
-    padding: "0.75rem",
+  btn: {
+    marginTop: "20px",
+    padding: "12px",
     width: "100%",
-    borderRadius: "8px",
-    border: "none",
     background: "#3b82f6",
-    color: "white",
-    fontSize: "1.1rem",
+    color: "#fff",
+    border: "none",
+    borderRadius: "8px",
     cursor: "pointer",
   }
 };

@@ -1,4 +1,6 @@
-from db import get_connection, questions_collection
+from db import get_connection
+from db import questions_collection
+import random
 
 def get_question_for_user(user_id):
     conn = get_connection()

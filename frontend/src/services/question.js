@@ -5,9 +5,9 @@ export async function getRandomQuestion() {
   return res.data;
 }
 
-export async function checkAnswer(id, choice) {
+export async function checkAnswer(question_id, choice) {
   const res = await api.post("/check-answer", {
-    id,
+    question_id,
     choice
   });
   return res.data.correct;

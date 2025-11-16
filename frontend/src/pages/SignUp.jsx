@@ -1,8 +1,32 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
+import { api } from "../services/api";
 
 export default function SignUp() {
   const nav = useNavigate();
+
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+
+  const handleSignUp = async () => {
+    try {
+      const res = await api.post("/auth/signup", {
+        username,
+        password
+      });
+
+      if (res.data.status === "success") {
+        localStorage.setItem("userId", res.data.user_id);
+        nav("/onboarding");
+      } else {
+        alert("Signup failed");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Signup error — check backend");
+    }
+  };
 
   return (
     <>
@@ -11,11 +35,29 @@ export default function SignUp() {
       <div style={styles.card}>
         <h2>Create Your Account</h2>
 
-        <input placeholder="Username" style={styles.input} />
-        <input placeholder="Email" style={styles.input} />
-        <input placeholder="Password" type="password" style={styles.input} />
+        <input
+          placeholder="Username"
+          style={styles.input}
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+        />
 
-        <button style={styles.btn}>Sign Up</button>
+        {/* Email isn't used by backend — keep it visible, but ignore it */}
+        <input
+          placeholder="Email (Not required)"
+          style={styles.input}
+          disabled
+        />
+
+        <input
+          placeholder="Password"
+          type="password"
+          style={styles.input}
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
+
+        <button style={styles.btn} onClick={handleSignUp}>Sign Up</button>
 
         <p>
           Already have an account?{" "}
