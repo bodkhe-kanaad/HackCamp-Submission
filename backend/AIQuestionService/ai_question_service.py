@@ -127,9 +127,9 @@ def check_ai_answer(user_id, question_id, choice):
 
     # 4. Mark attempt — NOT correctness
     if user_id == user1:
-        cur.execute("UPDATE "Pair" SET user1_answered = TRUE WHERE pair_id=%s;", (pid,))
+        cur.execute("UPDATE \"Pair\" SET user1_answered = TRUE WHERE pair_id=%s;", (pid,))
     else:
-        cur.execute("UPDATE "Pair" SET user2_answered = TRUE WHERE pair_id=%s;", (pid,))
+        cur.execute("UPDATE \"Pair\" SET user2_answered = TRUE WHERE pair_id=%s;", (pid,))
 
     conn.commit()
     cur.close()
