@@ -2,33 +2,32 @@ import json
 import requests
 import re
 
+# -----------------------------
+# MODEL CONFIGURATION
+# -----------------------------
 LLM_URL = "http://localhost:11434/api/generate"
-LLM_MODEL = "llama3.1:8b-instruct"   # replace with your model name
-MAX_TOKENS = 400
+LLM_MODEL = "qwen2.5:7b-instruct"   # BEST CHOICE
+MAX_TOKENS = 480                    # enough without overloading
 
-
-# ---------------------------------------------
-# Clean model output (remove markdown, code fences, junk)
-# ---------------------------------------------
+# -----------------------------
+# CLEAN + JSON EXTRACTION
+# -----------------------------
 def _extract_json(text):
-    """
-    Extract the FIRST valid JSON object from the text.
-    Cleans markdown ``` fences and other wrappers.
-    """
+    """Extract the first valid JSON object from model output."""
     # Remove code fences
     text = re.sub(r"```.*?```", "", text, flags=re.DOTALL)
     text = text.replace("```json", "").replace("```", "").strip()
 
-    # Try direct JSON parse
+    # Try direct parse
     try:
         return json.loads(text)
     except:
         pass
 
-    # Try to locate JSON substring using regex
-    json_match = re.search(r"\{.*\}", text, flags=re.DOTALL)
-    if json_match:
-        snippet = json_match.group(0)
+    # Try regex extraction
+    m = re.search(r"\{[\s\S]*\}", text)
+    if m:
+        snippet = m.group(0)
         try:
             return json.loads(snippet)
         except:
@@ -37,57 +36,62 @@ def _extract_json(text):
     return None
 
 
-# ---------------------------------------------
-# Validate JSON structure
-# ---------------------------------------------
 REQUIRED_KEYS = ["question", "A", "B", "C", "D", "correct_option"]
 
-def _is_valid_schema(obj):
+def _valid_schema(obj):
+    """Ensure the JSON has the required keys AND correct field formatting."""
     if not isinstance(obj, dict):
         return False
-    for k in REQUIRED_KEYS:
-        if k not in obj or not obj[k]:
+    for key in REQUIRED_KEYS:
+        if key not in obj or not obj[key]:
             return False
+
+    # Ensure correct_option is one of A/B/C/D
+    if obj["correct_option"] not in ["A", "B", "C", "D"]:
+        return False
+
     return True
 
 
-# ---------------------------------------------
-# Build strong prompt
-# ---------------------------------------------
-def _build_prompt(learning_goal):
+# -----------------------------
+# PROMPT ENGINEERING FOR QWEN
+# -----------------------------
+def _prompt(learning_goal):
     return f"""
-You are an AI that generates **university-level HOTS multiple-choice questions**.
+You are an AI that generates **high-quality university-level HOTS multiple-choice questions**.
 
-You must strictly output **one** JSON object with exactly this structure:
+IMPORTANT — Your ENTIRE OUTPUT **must be ONE JSON object only**, with NO explanations, NO extra text, NO markdown.
 
+JSON SCHEMA (STRICT):
 {{
-  "question": "<one clear question>",
-  "A": "<option A>",
-  "B": "<option B>",
-  "C": "<option C>",
-  "D": "<option D>",
-  "correct_option": "A"  // only A, B, C, or D
+  "question": "A single clear question",
+  "A": "Option A",
+  "B": "Option B",
+  "C": "Option C",
+  "D": "Option D",
+  "correct_option": "A"  // must be exactly A, B, C, or D
 }}
 
-Rules:
+RULES:
 • Do NOT include explanations.
-• Do NOT include more than one answer.
-• Do NOT include text outside the JSON object.
-• Options should be similar in length/difficulty.
-• The question must require higher-order reasoning, based on the following learning goal:
+• Do NOT include reasoning.
+• DO NOT write anything outside the JSON.
+• Options must be similar in difficulty.
+• The question must require higher-order thinking.
+• Base the question ONLY on this learning goal:
 
-Learning goal:
+LEARNING GOAL:
 "{learning_goal}"
 
-Now generate the JSON object.
+Now output ONLY the JSON object:
 """
 
 
-# ---------------------------------------------
-# Main generation function
-# ---------------------------------------------
+# -----------------------------
+# MAIN GENERATOR
+# -----------------------------
 def generate_llm_question(learning_goal, retries=3):
-    prompt = _build_prompt(learning_goal)
+    prompt = _prompt(learning_goal)
 
     for attempt in range(1, retries + 1):
         try:
@@ -101,25 +105,25 @@ def generate_llm_question(learning_goal, retries=3):
                 }
             )
 
-            raw = response.json().get("response", "")
-            parsed = _extract_json(raw)
+            raw_text = response.json().get("response", "")
+            parsed = _extract_json(raw_text)
 
-            if parsed and _is_valid_schema(parsed):
+            if parsed and _valid_schema(parsed):
                 return parsed
 
-            print(f"[LLM WARNING] Invalid JSON attempt {attempt}: {raw[:200]}...")
+            print(f"[QWEN WARNING] Invalid JSON (attempt {attempt}): {raw_text[:200]}")
 
         except Exception as e:
-            print(f"[LLM ERROR] Attempt {attempt} failed: {e}")
+            print(f"[QWEN ERROR] {attempt=}: {e}")
 
-    # -----------------------------------------
-    # FINAL FALLBACK (never let question fail)
-    # -----------------------------------------
+    # ----------------------------------------
+    #  FINAL SAFETY: NEVER RETURN NOTHING
+    # ----------------------------------------
     return {
-        "question": "Fallback HOTS question: Based on the learning goal, what is the most important concept?",
-        "A": "Key concept A",
-        "B": "Key concept B",
-        "C": "Key concept C",
-        "D": "Key concept D",
+        "question": "Fallback HOTS question: Identify the key concept based on the learning goal.",
+        "A": "Concept A",
+        "B": "Concept B",
+        "C": "Concept C",
+        "D": "Concept D",
         "correct_option": "A"
     }
