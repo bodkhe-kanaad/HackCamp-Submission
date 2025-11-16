@@ -1,24 +1,23 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import { api } from "../services/api";
 
 export default function Dashboard() {
+  const nav = useNavigate();
+
   const [user, setUser] = useState(null);
   const [match, setMatch] = useState(null);
-
   const [loadingUser, setLoadingUser] = useState(true);
   const [loadingPair, setLoadingPair] = useState(false);
-
   const [error, setError] = useState("");
   const [pairError, setPairError] = useState("");
 
   useEffect(() => {
     async function fetchUser() {
       setLoadingUser(true);
-      setError("");
 
       const id = localStorage.getItem("user_id");
-
       if (!id) {
         setError("No user ID found. Please sign in again.");
         setLoadingUser(false);
@@ -30,10 +29,10 @@ export default function Dashboard() {
         setUser(res.data);
       } catch (err) {
         console.error(err);
-        setError("Failed to load profile. Backend might be offline.");
-      } finally {
-        setLoadingUser(false);
+        setError("Could not load profile. Backend offline?");
       }
+
+      setLoadingUser(false);
     }
 
     async function fetchPairStatus() {
@@ -42,13 +41,11 @@ export default function Dashboard() {
 
       try {
         const res = await api.get(`/pair/status/${id}`);
-
-        // If already paired on backend
-        if (res.data && res.data.pair_id !== null) {
+        if (res.data.pair_id !== null) {
           setMatch(res.data);
         }
       } catch (err) {
-        console.error("Error fetching pair status:", err);
+        console.error("Pair status error:", err);
       }
     }
 
@@ -57,20 +54,20 @@ export default function Dashboard() {
   }, []);
 
   async function handlePair() {
-    setLoadingPair(true);
     setPairError("");
+    setLoadingPair(true);
 
     const id = localStorage.getItem("user_id");
 
     try {
       const res = await api.post("/pair", { user_id: id });
-      setMatch(res.data); // backend returns match object
+      setMatch(res.data);
     } catch (err) {
       console.error(err);
       setPairError("Pairing failed. Try again later.");
-    } finally {
-      setLoadingPair(false);
     }
+
+    setLoadingPair(false);
   }
 
   return (
@@ -88,17 +85,10 @@ export default function Dashboard() {
           <div style={styles.card}>
             <h3>Hello, {user.username} 👋</h3>
 
-            <p>
-              <strong>Courses:</strong>{" "}
-              {Array.isArray(user.courses) ? user.courses.join(", ") : "None"}
-            </p>
+            <p><strong>Courses:</strong> {user.courses.join(", ")}</p>
+            <p><strong>Interests:</strong> {user.interests.join(", ")}</p>
 
-            <p>
-              <strong>Interests:</strong>{" "}
-              {Array.isArray(user.interests) ? user.interests.join(", ") : "None"}
-            </p>
-
-            {/* Show Pair Me button ONLY if NOT already paired */}
+            {/* Unpaired → show Pair Me */}
             {!match && (
               <button
                 style={styles.btn}
@@ -109,35 +99,26 @@ export default function Dashboard() {
               </button>
             )}
 
+            {/* Paired → show Today's Task */}
+            {match && (
+              <button
+                style={styles.taskBtn}
+                onClick={() => nav("/solve")}
+              >
+                Today's Task
+              </button>
+            )}
+
             {pairError && <p style={{ color: "red" }}>{pairError}</p>}
           </div>
         )}
 
-        {/* Show match card ONLY when the user is paired */}
         {match && (
           <div style={styles.matchCard}>
             <h3>🎉 You’ve been paired!</h3>
-
-            <p><strong>Partner:</strong> {match.partner_username || "Unknown"}</p>
-
-            <p>
-              <strong>Courses:</strong>{" "}
-              {(match.partner_courses || []).length > 0
-                ? match.partner_courses.join(", ")
-                : "No courses provided"}
-            </p>
-
-            <p>
-              <strong>Interests:</strong>{" "}
-              {(match.partner_interests || []).length > 0
-                ? match.partner_interests.join(", ")
-                : "No interests provided"}
-            </p>
-
-            {/* Today’s Task can just live inside match card */}
-            <button style={styles.taskBtn}>
-              View Today's Task
-            </button>
+            <p><strong>Partner:</strong> {match.partner_username}</p>
+            <p><strong>Courses:</strong> {match.partner_courses.join(", ")}</p>
+            <p><strong>Interests:</strong> {match.partner_interests.join(", ")}</p>
           </div>
         )}
       </div>
@@ -147,38 +128,10 @@ export default function Dashboard() {
 
 const styles = {
   container: { width: "70%", margin: "2rem auto", textAlign: "center" },
-
-  card: {
-    background: "#f5f5f5",
-    padding: "1.5rem",
-    borderRadius: "12px",
-    marginBottom: "1.5rem"
-  },
-
-  btn: {
-    background: "#3b82f6",
-    color: "#fff",
-    padding: "0.75rem 1.25rem",
-    borderRadius: "10px",
-    border: "none",
-    cursor: "pointer",
-    marginTop: "1rem"
-  },
-
-  taskBtn: {
-    background: "#10b981",
-    color: "#fff",
-    padding: "0.75rem 1.25rem",
-    borderRadius: "10px",
-    border: "none",
-    cursor: "pointer",
-    marginTop: "1.5rem"
-  },
-
-  matchCard: {
-    background: "#d1fae5",
-    padding: "1.5rem",
-    borderRadius: "12px",
-    marginTop: "2rem"
-  }
+  card: { background: "#f5f5f5", padding: "1.5rem", borderRadius: "12px", marginBottom: "1.5rem" },
+  btn: { background: "#3b82f6", color: "#fff", padding: "0.75rem", borderRadius: "10px",
+         border: "none", cursor: "pointer", marginTop: "1rem" },
+  taskBtn: { background: "#10b981", color: "#fff", padding: "0.75rem",
+             borderRadius: "10px", border: "none", cursor: "pointer", marginTop: "1rem" },
+  matchCard: { background: "#d1fae5", padding: "1.5rem", borderRadius: "12px", marginTop: "2rem" }
 };

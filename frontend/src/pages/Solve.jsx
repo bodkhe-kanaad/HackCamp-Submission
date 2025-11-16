@@ -1,89 +1,122 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import { api } from "../services/api";
 
 export default function Solve() {
-  const { userId } = useParams();
-  const [question, setQuestion] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [selected, setSelected] = useState(null);
+  const [question, setQuestion] = useState(null);
+  const [choice, setChoice] = useState(null);
+  const [submitResult, setSubmitResult] = useState(null);
+  const [error, setError] = useState("");
+
+  async function fetchQuestion() {
+    setLoading(true);
+    setError("");
+
+    const id = localStorage.getItem("user_id");
+    if (!id) {
+      setError("You are not logged in.");
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const res = await api.get(`/todays-task/${id}`);
+      setQuestion(res.data);
+    } catch (err) {
+      console.error(err);
+      setError("No question available or backend offline.");
+    }
+
+    setLoading(false);
+  }
+
+  async function submitAnswer() {
+    setSubmitResult(null);
+
+    const id = localStorage.getItem("user_id");
+    if (!id) return;
+
+    try {
+      const res = await api.post("/check-answer", {
+        user_id: id,
+        question_id: question.id,
+        choice: choice
+      });
+
+      setSubmitResult(res.data.correct);
+    } catch (err) {
+      console.error(err);
+      setError("Failed to submit answer.");
+    }
+  }
 
   useEffect(() => {
-    const load = async () => {
-      try {
-        const res = await api.get(`/todays-task/${userId}`);
-        setQuestion(res.data);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    load();
-  }, [userId]);
-
-  if (loading) return <div>Loading question…</div>;
-  if (!question) return <div>No question found.</div>;
-
-  const options = [
-    { key: "option_a", text: question.option_a },
-    { key: "option_b", text: question.option_b },
-    { key: "option_c", text: question.option_c },
-    { key: "option_d", text: question.option_d },
-  ];
+    fetchQuestion();
+  }, []);
 
   return (
-    <div>
-      <Navbar center="Solve Challenge" />
+    <>
+      <Navbar />
 
       <div style={styles.container}>
-        <h2>{question.question_text}</h2>
+        <h2>Today's Challenge</h2>
 
-        <div style={{ marginTop: 20 }}>
-          {options.map((opt) => (
-            <div
-              key={opt.key}
-              onClick={() => setSelected(opt.key)}
-              style={{
-                padding: "12px",
-                borderRadius: "8px",
-                border: "1px solid #ccc",
-                marginBottom: "10px",
-                cursor: "pointer",
-                background: selected === opt.key ? "#dbeafe" : "white"
-              }}
-            >
-              {opt.text}
+        {loading && <p>Loading question...</p>}
+
+        {error && <p style={{ color: "red" }}>{error}</p>}
+
+        {question && (
+          <div style={styles.card}>
+            <h3>{question.title}</h3>
+            <p>{question.description}</p>
+
+            <div style={{ marginTop: "1rem" }}>
+              {question.options.map((opt, idx) => (
+                <div key={idx} style={styles.option}>
+                  <input
+                    type="radio"
+                    id={`opt-${idx}`}
+                    name="mcq"
+                    value={opt}
+                    onChange={() => setChoice(opt)}
+                  />
+                  <label htmlFor={`opt-${idx}`}>{opt}</label>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
 
-        <button
-          style={styles.btn}
-          onClick={() => alert(`You selected: ${selected}`)}
-        >
-          Submit (demo only)
-        </button>
+            <button
+              style={styles.btn}
+              disabled={!choice}
+              onClick={submitAnswer}
+            >
+              Submit Answer
+            </button>
+
+            {submitResult !== null && (
+              <p style={{ color: submitResult ? "green" : "red" }}>
+                {submitResult ? "Correct! 🎉" : "Incorrect ❌"}
+              </p>
+            )}
+          </div>
+        )}
       </div>
-    </div>
+    </>
   );
 }
 
 const styles = {
-  container: {
-    width: "90%",
-    maxWidth: "600px",
-    margin: "2rem auto",
-  },
+  container: { width: "70%", margin: "2rem auto", textAlign: "center" },
+  card: { background: "#f5f5f5", padding: "1.5rem", borderRadius: "12px", marginBottom: "1.5rem" },
   btn: {
-    marginTop: "20px",
-    padding: "12px",
-    width: "100%",
+    marginTop: "1rem",
+    padding: "0.75rem 1.25rem",
     background: "#3b82f6",
     color: "#fff",
     border: "none",
-    borderRadius: "8px",
-    cursor: "pointer",
-  }
+    borderRadius: "10px",
+    cursor: "pointer"
+  },
+  option: { padding: "0.5rem", textAlign: "left" }
 };

@@ -6,7 +6,7 @@ import { api } from "../services/api";
 export default function SignIn() {
   const nav = useNavigate();
 
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
@@ -15,23 +15,31 @@ export default function SignIn() {
 
     try {
       const res = await api.post("/login", {
-        "username":email,
-        "password":password
+        username,
+        password
       });
 
-      // backend returns true or false
       const success = res.data.authenticated === true;
 
       if (!success) {
-        setError("Invalid email or password.");
+        setError("Invalid username or password.");
         return;
       }
 
-      // login success → proceed to dashboard
+      // ⭐ Store user_id returned from backend
+      if (res.data.user_id) {
+        localStorage.setItem("user_id", res.data.user_id);
+      } else {
+        setError("Login succeeded but no user ID returned.");
+        return;
+      }
+
+      // Redirect after login
       nav("/dashboard");
 
     } catch (err) {
-      setError("Login failed. Check backend.");
+      console.error(err);
+      setError("Login failed. Backend might be offline.");
     }
   }
 
@@ -42,10 +50,10 @@ export default function SignIn() {
         <h2>Welcome Back</h2>
 
         <input
-          placeholder="Email"
+          placeholder="Username"
           style={styles.input}
-          value={email}
-          onChange={e => setEmail(e.target.value)}
+          value={username}
+          onChange={e => setUsername(e.target.value)}
         />
 
         <input
@@ -75,17 +83,29 @@ export default function SignIn() {
 
 const styles = {
   card: {
-    width: "350px", margin: "3rem auto", padding: "2rem",
-    borderRadius: "12px", background: "#f7f7f7", textAlign: "center"
+    width: "350px",
+    margin: "3rem auto",
+    padding: "2rem",
+    borderRadius: "12px",
+    background: "#f7f7f7",
+    textAlign: "center"
   },
   input: {
-    width: "100%", padding: "0.75rem", margin: "0.5rem 0",
-    borderRadius: "8px", border: "1px solid #ccc"
+    width: "100%",
+    padding: "0.75rem",
+    margin: "0.5rem 0",
+    borderRadius: "8px",
+    border: "1px solid #ccc"
   },
   btn: {
-    marginTop: "1rem", padding: "0.75rem", width: "100%",
-    background: "#3b82f6", color: "#fff", border: "none",
-    borderRadius: "8px", cursor: "pointer"
+    marginTop: "1rem",
+    padding: "0.75rem",
+    width: "100%",
+    background: "#3b82f6",
+    color: "#fff",
+    border: "none",
+    borderRadius: "8px",
+    cursor: "pointer"
   },
   link: { color: "#3b82f6", cursor: "pointer" }
 };
