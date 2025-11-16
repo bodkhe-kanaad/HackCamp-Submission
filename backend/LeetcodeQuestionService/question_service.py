@@ -77,13 +77,18 @@ from backend.db import get_connection
 from backend.LeetcodeQuestionService.db_mongo import questions_collection
 
 
+import random
+from backend.db import get_connection
+from backend.LeetcodeQuestionService.db_mongo import questions_collection
+
+
 def get_question_for_user(user_id):
     conn = get_connection()
     cur = conn.cursor()
 
-    # 1. Find user's pair
+    # Step 1. Get pair_id for user
     cur.execute(
-        "SELECT pair_id FROM users WHERE user_id = %s;",
+        'SELECT pair_id FROM users WHERE user_id = %s;',
         (user_id,)
     )
     row = cur.fetchone()
@@ -91,29 +96,19 @@ def get_question_for_user(user_id):
     if not row or row[0] is None:
         cur.close()
         conn.close()
-        return None  # user not paired or not found
+        return None  # user is not paired
 
     pair_id = row[0]
 
-    # 2. Check existing question for the pair
+    # Step 2. Get the pair's current question
     cur.execute(
-        """
-        SELECT question_id
-        FROM pair
-        WHERE pair_id = %s;
-        """,
+        'SELECT question_id FROM pair WHERE pair_id = %s;',
         (pair_id,)
     )
     row = cur.fetchone()
-
-    if not row:
-        cur.close()
-        conn.close()
-        return None  # pair not found
-
     assigned_qid = row[0]
 
-    # CASE 1: question already assigned → return same question
+    # CASE 1. Pair already has a question
     if assigned_qid is not None:
         q = questions_collection.find_one({"id": assigned_qid})
         if q:
@@ -123,7 +118,7 @@ def get_question_for_user(user_id):
             conn.close()
             return q
 
-    # CASE 2: no question assigned → pick new random question
+    # CASE 2. No question assigned → generate one
     total = questions_collection.count_documents({})
     if total == 0:
         cur.close()
@@ -134,15 +129,9 @@ def get_question_for_user(user_id):
     q = list(questions_collection.find().skip(idx).limit(1))[0]
     question_id = q["id"]
 
-    # 3. Save new question into pair table
+    # Save assigned question to pair table
     cur.execute(
-        """
-        UPDATE pair
-        SET question_id = %s,
-            user1_answered = FALSE,
-            user2_answered = FALSE
-        WHERE pair_id = %s;
-        """,
+        'UPDATE pair SET question_id = %s, user1_answered = FALSE, user2_answered = FALSE WHERE pair_id = %s;',
         (question_id, pair_id)
     )
     conn.commit()
