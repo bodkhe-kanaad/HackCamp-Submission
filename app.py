@@ -3,6 +3,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 
 # Import blueprints
 from backend.Pairing.routes.pair_routes import pair_bp
+from backend.Pairing.routes.pairing_routes import pairing_bp
 from backend.Pairing.routes.unpair_routes import unpair_bp
 from backend.LeetcodeQuestionService.routes.question_routes import question_bp
 from backend.Leaderboard.routes.leaderboard_routes import leaderboard_bp
@@ -17,6 +18,7 @@ def create_app():
 
     # Register blueprints
     app.register_blueprint(pair_bp)
+    app.register_blueprint(pairing_bp)
     app.register_blueprint(unpair_bp)
     app.register_blueprint(question_bp)
     app.register_blueprint(leaderboard_bp)

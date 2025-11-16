@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
-from Pairing.pairing_service import pair_user, get_user_pair_status
+from backend.Pairing.pairing_service import pair_user, get_user_pair_status
 
-pair_bp = Blueprint("pair_bp", __name__)
+pairing_bp = Blueprint("pairing_bp", __name__)
 
 
 # --------------------------------------------------
@@ -9,7 +9,7 @@ pair_bp = Blueprint("pair_bp", __name__)
 # Pairs a user with the best match
 # Returns: pair_id and the matched user_id
 # --------------------------------------------------
-@pair_bp.post("/pair")
+@pairing_bp.post("/pair")
 def pair():
     data = request.get_json(silent=True) or {}
 
@@ -36,7 +36,7 @@ def pair():
 # GET /pair/status/<user_id>
 # Returns pair_id and partner_id for frontend
 # --------------------------------------------------
-@pair_bp.get("/pair/status/<int:user_id>")
+@pairing_bp.get("/pair/status/<int:user_id>")
 def status(user_id):
     result = get_user_pair_status(user_id)
 

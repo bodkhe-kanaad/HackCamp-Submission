@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from backend.Authentication.auth_service import authenticate_user, create_user
+from backend.Authentication.auth_service import authenticate_user, create_user, get_user
 
 auth_bp = Blueprint("auth_bp", __name__)
 
@@ -25,3 +25,11 @@ def signup():
         return jsonify({'success': True, 'message': message, 'user_id': user_id})
     else:
         return jsonify({'success': False, 'message': message}), 400
+
+@auth_bp.get("/user/<int:user_id>")
+def get_user_endpoint(user_id):
+    user = get_user(user_id)
+    if user:
+        return jsonify(user)
+    else:
+        return jsonify({'message': 'User not found'}), 404

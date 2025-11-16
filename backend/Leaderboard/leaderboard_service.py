@@ -11,7 +11,7 @@ def update_streaks_for_all_pairs():
     cur.execute(
         """
         SELECT pair_id, user1_answered, user2_answered
-        FROM pair;
+        FROM "Pair";
         """
     )
     rows = cur.fetchall()
@@ -22,7 +22,7 @@ def update_streaks_for_all_pairs():
             # Both answered → increment streak and reset daily fields
             cur.execute(
                 """
-                UPDATE pair
+                UPDATE "Pair"
                 SET streak = streak + 1,
                     question_id = NULL,
                     user1_answered = FALSE,
@@ -35,7 +35,7 @@ def update_streaks_for_all_pairs():
             # One or both did NOT answer → reset streak
             cur.execute(
                 """
-                UPDATE pair
+                UPDATE "Pair"
                 SET streak = 0,
                     question_id = NULL,
                     user1_answered = FALSE,
@@ -60,7 +60,7 @@ def get_leaderboard():
     cur.execute(
         """
         SELECT pair_id, user1, user2, streak
-        FROM pair
+        FROM "Pair"
         ORDER BY streak DESC, pair_id ASC;
         """
     )

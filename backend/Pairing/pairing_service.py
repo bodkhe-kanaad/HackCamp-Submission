@@ -90,13 +90,13 @@ def pair_user(user_id):
 
     user2_id = best_match["user_id"]
 
-    # Insert into pair table
+    # Insert into Pair table
     conn = get_connection()
     cur = conn.cursor()
 
     cur.execute(
         """
-        INSERT INTO pair (user1, user2)
+        INSERT INTO "Pair" (user1, user2)
         VALUES (%s, %s)
         RETURNING pair_id;
         """,
@@ -106,8 +106,8 @@ def pair_user(user_id):
     pair_id = cur.fetchone()[0]
 
     # Update both users with this pair_id
-    cur.execute("UPDATE users SET pair_id = %s WHERE user_id = %s;", (pair_id, user_id))
-    cur.execute("UPDATE users SET pair_id = %s WHERE user_id = %s;", (pair_id, user2_id))
+    cur.execute('UPDATE "users" SET pair_id = %s WHERE user_id = %s;', (pair_id, user_id))
+    cur.execute('UPDATE "users" SET pair_id = %s WHERE user_id = %s;', (pair_id, user2_id))
 
     conn.commit()
     cur.close()
@@ -115,12 +115,13 @@ def pair_user(user_id):
 
     return pair_id, user2_id
 
+
 def unpair_user(user_id):
     conn = get_connection()
     cur = conn.cursor()
 
     # Find pair_id
-    cur.execute("SELECT pair_id FROM users WHERE user_id = %s;", (user_id,))
+    cur.execute('SELECT pair_id FROM "users" WHERE user_id = %s;', (user_id,))
     row = cur.fetchone()
 
     if not row or row[0] is None:
@@ -132,7 +133,7 @@ def unpair_user(user_id):
 
     # Get both users in the pair
     cur.execute(
-        "SELECT user1, user2 FROM pair WHERE pair_id = %s;",
+        'SELECT user1, user2 FROM "Pair" WHERE pair_id = %s;',
         (pair_id,)
     )
     pair_row = cur.fetchone()
@@ -145,11 +146,11 @@ def unpair_user(user_id):
     user1, user2 = pair_row
 
     # Remove pair_id from both users
-    cur.execute("UPDATE users SET pair_id = NULL WHERE user_id = %s;", (user1,))
-    cur.execute("UPDATE users SET pair_id = NULL WHERE user_id = %s;", (user2,))
+    cur.execute('UPDATE "users" SET pair_id = NULL WHERE user_id = %s;', (user1,))
+    cur.execute('UPDATE "users" SET pair_id = NULL WHERE user_id = %s;', (user2,))
 
     # Delete pair row
-    cur.execute("DELETE FROM pair WHERE pair_id = %s;", (pair_id,))
+    cur.execute('DELETE FROM "Pair" WHERE pair_id = %s;', (pair_id,))
 
     conn.commit()
     cur.close()
@@ -164,7 +165,7 @@ def get_user_pair_status(user_id):
 
     # get pair_id from users
     cur.execute(
-        "SELECT pair_id FROM users WHERE user_id = %s;",
+        'SELECT pair_id FROM "users" WHERE user_id = %s;',
         (user_id,)
     )
     row = cur.fetchone()
@@ -178,7 +179,7 @@ def get_user_pair_status(user_id):
 
     # get the pair info
     cur.execute(
-        "SELECT user1, user2 FROM pair WHERE pair_id = %s;",
+        'SELECT user1, user2 FROM "Pair" WHERE pair_id = %s;',
         (pair_id,)
     )
     pr = cur.fetchone()
@@ -203,7 +204,7 @@ def get_pairmate_details(user_id):
 
     # 1. Get your pair_id
     cur.execute(
-        'SELECT pair_id FROM users WHERE user_id = %s;',
+        'SELECT pair_id FROM "users" WHERE user_id = %s;',
         (user_id,)
     )
     row = cur.fetchone()
@@ -217,7 +218,7 @@ def get_pairmate_details(user_id):
 
     # 2. Get both users in the pair
     cur.execute(
-        'SELECT user1, user2 FROM pair WHERE pair_id = %s;',
+        'SELECT user1, user2 FROM "Pair" WHERE pair_id = %s;',
         (pair_id,)
     )
     pair_row = cur.fetchone()
@@ -233,14 +234,14 @@ def get_pairmate_details(user_id):
 
     # 3. Fetch your profile
     cur.execute(
-        'SELECT user_id, username, interests, courses FROM users WHERE user_id = %s;',
+        'SELECT user_id, username, interests, courses FROM "users" WHERE user_id = %s;',
         (user_id,)
     )
     u1 = cur.fetchone()
 
     # 4. Fetch partner profile
     cur.execute(
-        'SELECT user_id, username, interests, courses FROM users WHERE user_id = %s;',
+        'SELECT user_id, username, interests, courses FROM "users" WHERE user_id = %s;',
         (partner_id,)
     )
     u2 = cur.fetchone()

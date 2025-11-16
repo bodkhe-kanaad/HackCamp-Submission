@@ -42,14 +42,13 @@ def create_user(data):
         if cur.fetchone():
             return False, "Username already exists", None
 
-        user_id = str(uuid.uuid4())
-
         cur.execute("""
-            INSERT INTO "users" (user_id, username, password, interests, courses)
-            VALUES (%s, %s, %s, %s, %s);
-        """, (user_id, username, password, interests, courses))
-
+            INSERT INTO "users" (username, password, interests, courses)
+            VALUES (%s, %s, %s, %s);
+        """, (username, password, interests, courses))
+        cur.execute('SELECT user_id FROM "users" WHERE username = %s;', (username,))
         conn.commit()
+        user_id = cur.fetchone()[0]
         return True, "User created successfully", user_id
     except Exception as e:
         conn.rollback()
@@ -57,3 +56,27 @@ def create_user(data):
     finally:
         cur.close()
         conn.close()
+
+
+def get_user(user_id):
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute(
+        'SELECT user_id, courses, interests, pair_id FROM "users" WHERE user_id = %s;',
+        (user_id,)
+    )
+    row = cur.fetchone()
+
+    cur.close()
+    conn.close()
+
+    if not row:
+        return None
+
+    return {
+        "user_id": row[0],
+        "courses": row[1] or [],
+        "interests": row[2] or [],
+        "pair_id": row[3]
+    }
