@@ -1,4 +1,4 @@
-import psycopg2
+import psycopg1
 
 # Database connection parameters
 DB_CONFIG = {

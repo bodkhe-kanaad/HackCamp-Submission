@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request
-from AIQuestionService.ai_question_service import (
+from backend.AIQuestionService.ai_question_service import (
     get_ai_question_for_user,
     check_ai_answer,
     generate_ai_question_for_pair

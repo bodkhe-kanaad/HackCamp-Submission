@@ -1,6 +1,6 @@
 from backend.db import get_connection
-from AIQuestionService.llm_client import generate_llm_question
-from AIQuestionService.ensemble_selector import choose_best_learning_goal
+from backend.AIQuestionService.llm_client import generate_llm_question
+from backend.AIQuestionService.ensemble_selector import choose_best_learning_goal
 
 
 def generate_ai_question_for_pair(pair_id, course, week):
@@ -15,7 +15,7 @@ def generate_ai_question_for_pair(pair_id, course, week):
 
     # 3. Store into shared question table
     cur.execute("""
-        INSERT INTO question (question, option_A, option_B, option_C, option_D, correct_option, source_type)
+        INSERT INTO question (question,A, B, C, D, correct_option, source_type)
         VALUES (%s, %s, %s, %s, %s, %s, 'ai')
         RETURNING id;
     """, (
