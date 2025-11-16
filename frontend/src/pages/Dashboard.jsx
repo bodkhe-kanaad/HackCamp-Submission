@@ -9,7 +9,6 @@ export default function Dashboard() {
   const [user, setUser] = useState(null);
   const [pairBasic, setPairBasic] = useState(null);
   const [pairFull, setPairFull] = useState(null);
-
   const [loadingUser, setLoadingUser] = useState(true);
   const [loadingPair, setLoadingPair] = useState(false);
   const [error, setError] = useState("");
@@ -19,36 +18,40 @@ export default function Dashboard() {
   // LOAD DATA
   // --------------------------
   useEffect(() => {
-    async function load() {
+    async function loadEverything() {
       const id = localStorage.getItem("user_id");
       if (!id) {
         setError("No session found — please log in again.");
         return;
       }
 
+      // Load profile
       try {
-        const userRes = await api.get(`/user/${id}`);
-        setUser(userRes.data);
+        const res = await api.get(`/user/${id}`);
+        setUser(res.data);
       } catch {
         setError("Failed to load profile.");
       }
 
+      // Load pair status
       try {
-        const pairRes = await api.get(`/pair/status/${id}`);
-        if (pairRes.data.pair_id !== null) {
-          setPairBasic(pairRes.data);
+        const res = await api.get(`/pair/status/${id}`);
 
+        if (res.data.pair_id !== null) {
+          setPairBasic(res.data);
+
+          // Now fetch full partner info
           const mate = await api.get(`/pair/mate/${id}`);
           setPairFull(mate.data);
         }
       } catch (err) {
-        console.error("Pair error:", err);
+        console.error("Pair status error:", err);
       }
 
       setLoadingUser(false);
     }
 
-    load();
+    loadEverything();
   }, []);
 
   // --------------------------
@@ -63,6 +66,7 @@ export default function Dashboard() {
       const res = await api.post("/pair", { user_id: id });
       setPairBasic(res.data);
 
+      // fetch partner details now
       const mate = await api.get(`/pair/mate/${id}`);
       setPairFull(mate.data);
     } catch {
@@ -373,59 +377,19 @@ const styles = {
     fontWeight: 600,
     cursor: "pointer",
   },
-
-  accentButton: {
+  taskBtn: {
     marginTop: "1rem",
-    padding: "0.8rem",
-    width: "100%",
+    padding: "0.75rem 1.25rem",
     background: "#10b981",
     color: "#fff",
     border: "none",
     borderRadius: "10px",
-    cursor: "pointer",
-    fontWeight: 600,
+    cursor: "pointer"
   },
-
-  partnerCard: {
-    marginTop: "2rem",
-    background: "#effdf5",
+  matchCard: {
+    background: "#d1fae5",
     padding: "1.5rem",
-    borderRadius: "14px",
-    boxShadow: "0 4px 10px rgba(0,0,0,0.08)",
-    textAlign: "left",
-  },
-
-  partnerTitle: {
-    fontSize: "1.4rem",
-    fontWeight: 700,
-    marginBottom: "1rem",
-  },
-
-  switch: {
-    position: "relative",
-    display: "inline-block",
-    width: "48px",
-    height: "24px",
-  },
-
-  slider: {
-    position: "absolute",
-    cursor: "pointer",
-    top: "0",
-    left: "0",
-    right: "0",
-    bottom: "0",
-    backgroundColor: "#ccc",
-    transition: ".4s",
-    borderRadius: "24px",
-  },
-
-  streakBox: {
-    marginTop: "1rem",
-    padding: "0.7rem",
-    background: "#fef3c7",
-    borderRadius: "8px",
-    fontWeight: 600,
-    textAlign: "center",
+    borderRadius: "12px",
+    marginTop: "2rem"
   }
 };
