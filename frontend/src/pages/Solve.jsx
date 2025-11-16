@@ -45,15 +45,12 @@ export default function Solve() {
         const res = await api.get(`/todays-task/${user_id}`);
         const raw = res.data;
 
+        // Transform unified backend response
         const formatted = {
           id: raw.id,
-          prompt: raw.question,
-          options: [
-            { key: "A", text: raw.A },
-            { key: "B", text: raw.B },
-            { key: "C", text: raw.C },
-            { key: "D", text: raw.D },
-          ].filter(opt => Boolean(opt.text)),
+          title: "Daily Coding Challenge",
+          description: raw.question,
+          options: raw.options, // <-- dictionary {A: "...", B: "..."}
         };
 
         setQuestion(formatted);
@@ -100,19 +97,19 @@ export default function Solve() {
         {/* Prevent render crashes with strong guards */}
         {!loading && question && question.options && (
           <div style={styles.card}>
-            <h3>{question.prompt}</h3>
+            <h3>{question.title}</h3>
+            <p>{question.description}</p>
 
             <div style={{ marginTop: "1rem" }}>
-              {question.options.map(option => (
-                <label key={option.key} style={styles.option}>
+              {Object.entries(question.options).map(([letter, text]) => (
+                <label key={letter} style={styles.option}>
                   <input
                     type="radio"
                     name="mcq"
-                    value={option.key}
-                    checked={choice === option.key}
-                    onChange={() => setChoice(option.key)}
+                    value={letter}
+                    onChange={() => setChoice(letter)}
                   />
-                  <strong>{option.key}.</strong> {option.text}
+                  <strong>{letter}.</strong> {text}
                 </label>
               ))}
             </div>
