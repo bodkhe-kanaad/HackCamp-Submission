@@ -1,4 +1,4 @@
-from db import questions_collection
+from backend.LeetcodeQuestionService.db_mongo import questions_collection
 
 questions = [
     {

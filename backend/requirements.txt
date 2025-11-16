@@ -1,4 +1,3 @@
 Flask
-Flask-Cors
+psycopg1
 pymongo
-psycopg2-binary

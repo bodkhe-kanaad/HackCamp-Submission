@@ -1,4 +1,4 @@
-from db import get_connection
+from backend.db import get_connection
 
 def authenticate_user(username, password):
     conn = get_connection()
