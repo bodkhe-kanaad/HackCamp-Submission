@@ -5,19 +5,32 @@ import { api } from "../services/api";
 export default function Dashboard() {
   const [user, setUser] = useState(null);
   const [match, setMatch] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [loadingUser, setLoadingUser] = useState(true);
+  const [loadingPair, setLoadingPair] = useState(false);
+  const [error, setError] = useState("");
   const [pairError, setPairError] = useState("");
 
   useEffect(() => {
     async function fetchUser() {
+      setLoadingUser(true);
+      setError("");
+
       const id = localStorage.getItem("user_id");
-      if (!id) return;
+
+      if (!id) {
+        setError("No user ID found. Please sign in again.");
+        setLoadingUser(false);
+        return;
+      }
 
       try {
         const res = await api.get(`/user/${id}`);
         setUser(res.data);
       } catch (err) {
         console.error(err);
+        setError("Failed to load profile. Backend might be offline.");
+      } finally {
+        setLoadingUser(false);
       }
     }
 
@@ -25,19 +38,19 @@ export default function Dashboard() {
   }, []);
 
   async function handlePair() {
-    setLoading(true);
+    setLoadingPair(true);
     setPairError("");
 
     const id = localStorage.getItem("user_id");
 
     try {
       const res = await api.post("/pair", { user_id: id });
-      setMatch(res.data); // backend returns match info
+      setMatch(res.data);
     } catch (err) {
       console.error(err);
       setPairError("Pairing failed. Try again later.");
     } finally {
-      setLoading(false);
+      setLoadingPair(false);
     }
   }
 
@@ -48,17 +61,30 @@ export default function Dashboard() {
       <div style={styles.container}>
         <h2>Your Dashboard</h2>
 
-        {!user ? (
+        {loadingUser ? (
           <p>Loading profile...</p>
+        ) : error ? (
+          <p style={{ color: "red" }}>{error}</p>
         ) : (
           <div style={styles.card}>
             <h3>Hello, {user.username} 👋</h3>
 
-            <p><strong>Courses:</strong> {user.courses.join(", ")}</p>
-            <p><strong>Interests:</strong> {user.interests.join(", ")}</p>
+            <p>
+              <strong>Courses:</strong>{" "}
+              {Array.isArray(user.courses) ? user.courses.join(", ") : "None"}
+            </p>
 
-            <button style={styles.btn} onClick={handlePair} disabled={loading}>
-              {loading ? "Pairing..." : "Pair Me"}
+            <p>
+              <strong>Interests:</strong>{" "}
+              {Array.isArray(user.interests) ? user.interests.join(", ") : "None"}
+            </p>
+
+            <button
+              style={styles.btn}
+              onClick={handlePair}
+              disabled={loadingPair}
+            >
+              {loadingPair ? "Pairing..." : "Pair Me"}
             </button>
 
             {pairError && <p style={{ color: "red" }}>{pairError}</p>}
