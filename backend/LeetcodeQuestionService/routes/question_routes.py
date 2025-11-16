@@ -29,7 +29,7 @@ def todays_task_route(user_id):
     # Find pair + mode + question
     cur.execute("""
         SELECT p.pair_id, p.ai_mode, p.question_id
-        FROM pair p
+        FROM "Pair" p
         JOIN users u ON u.pair_id = p.pair_id
         WHERE u.user_id = %s;
     """, (user_id,))

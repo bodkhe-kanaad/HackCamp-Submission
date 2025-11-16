@@ -28,7 +28,7 @@ def toggle_mode():
 
     # Update mode
     cur.execute("""
-        UPDATE Pair
+        UPDATE "Pair"
         SET ai_mode = %s
         WHERE pair_id = %s;
     """, (ai_mode, pair_id))

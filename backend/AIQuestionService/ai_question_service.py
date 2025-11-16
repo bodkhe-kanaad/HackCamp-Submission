@@ -29,7 +29,7 @@ def generate_ai_question_for_pair(pair_id, course, week):
 
     # 4. Assign to pair
     cur.execute("""
-        UPDATE pair
+        UPDATE "Pair"
         SET question_id = %s,
             user1_answered = FALSE,
             user2_answered = FALSE
@@ -52,7 +52,7 @@ def get_ai_question_for_user(user_id):
 
     cur.execute("""
         SELECT p.question_id
-        FROM pair p
+        FROM "Pair" p
         JOIN users u ON u.pair_id = p.pair_id
         WHERE u.user_id = %s;
     """, (user_id,))
@@ -120,16 +120,16 @@ def check_ai_answer(user_id, question_id, choice):
     # 3. Identify whether user is user1 or user2
     cur.execute("""
         SELECT user1, user2
-        FROM pair
+        FROM "Pair"
         WHERE pair_id = %s;
     """, (pid,))
     user1, user2 = cur.fetchone()
 
     # 4. Mark attempt — NOT correctness
     if user_id == user1:
-        cur.execute("UPDATE pair SET user1_answered = TRUE WHERE pair_id=%s;", (pid,))
+        cur.execute("UPDATE "Pair" SET user1_answered = TRUE WHERE pair_id=%s;", (pid,))
     else:
-        cur.execute("UPDATE pair SET user2_answered = TRUE WHERE pair_id=%s;", (pid,))
+        cur.execute("UPDATE "Pair" SET user2_answered = TRUE WHERE pair_id=%s;", (pid,))
 
     conn.commit()
     cur.close()
