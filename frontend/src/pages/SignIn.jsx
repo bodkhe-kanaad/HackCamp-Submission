@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import { api } from "../services/api";
+import "./css/auth.css";
 
 export default function SignIn() {
   const nav = useNavigate();
@@ -92,10 +93,15 @@ const styles = {
   },
   input: {
     width: "100%",
-    padding: "0.75rem",
-    margin: "0.5rem 0",
+    padding: "0.5rem",
+    margin: "0.2rem 0",
     borderRadius: "8px",
-    border: "1px solid #ccc"
+    border: "1px solid #FFD4D1",
+    boxSizing: "border-box", 
+
+    // 🌟 THE FIX: Explicitly setting the background to white and text to black
+    background: "white", 
+    color: "black",
   },
   btn: {
     marginTop: "1rem",
