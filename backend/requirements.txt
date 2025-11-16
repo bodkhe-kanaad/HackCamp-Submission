@@ -1,3 +1,0 @@
-Flask
-psycopg1
-pymongo
