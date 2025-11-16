@@ -16,19 +16,39 @@ from backend.AIQuestionService.ai_question_service import (
 
 question_bp = Blueprint("question_bp", __name__)
 
+from flask import Blueprint, jsonify, request
+from backend.db import get_connection
+
+# AI and LeetCode logic
+from backend.AIQuestionService.ai_question_service import (
+    get_ai_question_for_user,
+    generate_ai_question_for_pair,
+    check_ai_answer
+)
+
+from backend.LeetcodeQuestionService.question_service import (
+    get_leetcode_question_for_user,
+    generate_leetcode_question_for_pair,
+    check_leetcode_answer
+)
+
+question_bp = Blueprint("question_bp", __name__)
+
 
 # ---------------------------------------------------------
 # GET /todays-task/<user_id>
-# Unified endpoint → decides LeetCode or AI based on ai_mode
+# Unified endpoint → chooses AI or LeetCode + prevents repeat attempts
 # ---------------------------------------------------------
 @question_bp.get("/todays-task/<int:user_id>")
 def todays_task_route(user_id):
     conn = get_connection()
     cur = conn.cursor()
 
-    # Find pair + mode + question
+    # 1. Get pair info
     cur.execute("""
-        SELECT p.pair_id, p.ai_mode, p.question_id
+        SELECT p.pair_id, p.ai_mode, p.question_id,
+               p.user1, p.user2,
+               p.user1_answered, p.user2_answered
         FROM "Pair" p
         JOIN users u ON u.pair_id = p.pair_id
         WHERE u.user_id = %s;
@@ -36,26 +56,35 @@ def todays_task_route(user_id):
     row = cur.fetchone()
 
     if not row:
+        cur.close()
+        conn.close()
         return jsonify({"error": "user not paired"}), 404
 
-    pair_id, ai_mode, current_question_id = row
+    (pair_id, ai_mode, current_qid,
+     user1, user2, user1_answered, user2_answered) = row
+
+    # 2. Prevent double-attempting
+    if (user_id == user1 and user1_answered) or (user_id == user2 and user2_answered):
+        cur.close()
+        conn.close()
+        return jsonify({"error": "already attempted today's task"}), 403
+
     cur.close()
     conn.close()
 
-    # -----------------------------------------------------
-    # CASE 1 — AI MODE ON
-    # -----------------------------------------------------
+    # =========================================================
+    # CASE 1 — AI MODE
+    # =========================================================
     if ai_mode:
         q = get_ai_question_for_user(user_id)
 
-        if q:       # already assigned
+        if q:  # Question already exists & user hasn't attempted
             return jsonify(q)
 
-        # No AI question yet → generate one
+        # Need to generate the first AI question
         conn = get_connection()
         cur = conn.cursor()
 
-        # fetch shared courses
         cur.execute("""
             SELECT u1.courses, u2.courses
             FROM users u1
@@ -76,26 +105,25 @@ def todays_task_route(user_id):
         if not shared_courses:
             return jsonify({"error": "No shared courses available"}), 400
 
-        # Pick the first one for now
         course = shared_courses[0]
-        week = 1     # default unless tracked
+        week = 2  # default
 
-        # Generate AI question
         generate_ai_question_for_pair(pair_id, course, week)
 
-        # Return new AI question
         return jsonify(get_ai_question_for_user(user_id))
 
-    # -----------------------------------------------------
-    # CASE 2 — NORMAL MODE → LEETCODE QUESTION
-    # -----------------------------------------------------
-    lc_question = get_leetcode_question_for_user(user_id)
+    # =========================================================
+    # CASE 2 — LEETCODE MODE
+    # =========================================================
+    q = get_leetcode_question_for_user(user_id)
 
-    if lc_question:
-        return jsonify(lc_question)
+    if q:
+        return jsonify(q)
 
-    return jsonify({"error": "no question available"}), 404
+    # No question exists — generate one
+    generate_leetcode_question_for_pair(pair_id)
 
+    return jsonify(get_leetcode_question_for_user(user_id))
 
 # ---------------------------------------------------------
 # POST /check-answer
