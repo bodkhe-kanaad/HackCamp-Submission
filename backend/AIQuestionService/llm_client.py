@@ -7,7 +7,7 @@ from openai import OpenAI
 # -----------------------------------------------------
 # CONFIG
 # -----------------------------------------------------
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+OPENAI_API_KEY = "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"
 MODEL_NAME = "gpt-4o-mini"    # fast + good
 MAX_TOKENS = 300
 
