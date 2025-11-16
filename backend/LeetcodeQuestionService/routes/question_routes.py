@@ -103,10 +103,7 @@ def todays_task_route(user_id):
         return jsonify(q)
     return jsonify(get_leetcode_question_for_user(user_id))
 
-# ---------------------------------------------------------
-# POST /check-answer
-# Determines whether to check LeetCode or AI question
-# ---------------------------------------------------------
+
 @question_bp.post("/check-answer")
 def check_answer_route():
     data = request.get_json(silent=True) or {}
@@ -123,29 +120,63 @@ def check_answer_route():
     except:
         return jsonify({"error": "question_id must be integer"}), 400
 
-    # Determine whether this is AI or LeetCode question
     conn = get_connection()
     cur = conn.cursor()
 
-    cur.execute("SELECT source_type FROM question WHERE id=%s;", (question_id,))
+    # -----------------------------------------
+    # 1. Ensure user belongs to a pair + get flags
+    # -----------------------------------------
+    cur.execute("""
+        SELECT p.pair_id, p.user1, p.user2, p.user1_answered, p.user2_answered
+        FROM "Pair" p
+        JOIN users u ON u.pair_id = p.pair_id
+        WHERE u.user_id = %s;
+    """, (user_id,))
     row = cur.fetchone()
+
+    if not row:
+        cur.close()
+        conn.close()
+        return jsonify({"error": "user not in a pair"}), 404
+
+    pair_id, user1, user2, u1_done, u2_done = row
+
+    # -----------------------------------------
+    # 2. BLOCK if already attempted
+    # -----------------------------------------
+    if (user_id == user1 and u1_done) or (user_id == user2 and u2_done):
+        cur.close()
+        conn.close()
+        return jsonify({"error": "already attempted today's task"}), 403
+
+    # -----------------------------------------
+    # 3. Determine question source_type
+    # -----------------------------------------
+    cur.execute("""SELECT source_type FROM "question" WHERE id=%s;""", (question_id,))
+    row = cur.fetchone()
+
+    if not row:
+        cur.close()
+        conn.close()
+        return jsonify({"error": "question not found"}), 404
+
+    source = row[0]
+
+    # -----------------------------------------
+    # 4. Check answer depending on source
+    # -----------------------------------------
+    if source == "leetcode":
+        correct = check_leetcode_answer(question_id, choice, user_id)
+    elif source == "ai":
+        correct = check_ai_answer(user_id, question_id, choice)
+    else:
+        cur.close()
+        conn.close()
+        return jsonify({"error": "invalid question source"}), 400
 
     cur.close()
     conn.close()
 
-    if not row:
-        return jsonify({"error": "question not found"}), 404
-
-    source = row[0]  # 'ai' or 'leetcode'
-
-    if source == "leetcode":
-        correct = check_leetcode_answer(question_id, choice, user_id)
-        return jsonify({"correct": correct})
-
-    if source == "ai":
-        correct = check_ai_answer(user_id, question_id, choice)
-        return jsonify({"correct": correct})
-
-    return jsonify({"error": "Invalid question source"}), 400
+    return jsonify({"correct": correct})
 
 
