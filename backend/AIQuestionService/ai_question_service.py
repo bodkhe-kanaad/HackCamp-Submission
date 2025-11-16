@@ -179,15 +179,14 @@ def check_ai_answer(user_id, question_id, choice):
     conn = get_connection()
     cur = conn.cursor()
 
-    # 1. Retrieve correct answer (only for frontend feedback)
-    cur.execute(
-        """
-        SELECT correct_option
-        FROM "question"
-        WHERE id = %s AND source_type = 'ai';
-        """,
-        (question_id,),
-    )
+    # 1. Fetch pair + flags
+    cur.execute("""
+        SELECT p.pair_id, p.user1, p.user2,
+               p.user1_answered, p.user2_answered
+        FROM "Pair" p
+        JOIN users u ON u.pair_id = p.pair_id
+        WHERE u.user_id = %s;
+    """, (user_id,))
     row = cur.fetchone()
 
     if not row:
@@ -195,57 +194,38 @@ def check_ai_answer(user_id, question_id, choice):
         conn.close()
         return None
 
-    correct = row[0] == choice
+    pair_id, user1, user2, u1_done, u2_done = row
 
-    # 2. Identify user's pair
-    cur.execute(
-        'SELECT pair_id FROM "users" WHERE user_id = %s;',
-        (user_id,),
-    )
-    pid_row = cur.fetchone()
-    if not pid_row or pid_row[0] is None:
+    # 2. Prevent double-submission
+    if (user_id == user1 and u1_done) or (user_id == user2 and u2_done):
+        cur.close()
+        conn.close()
+        return {"error": "already attempted today's task"}
+
+    # 3. Fetch correct option
+    cur.execute("""
+        SELECT correct_option
+        FROM "question"
+        WHERE id = %s AND source_type = 'ai';
+    """, (question_id,))
+    row = cur.fetchone()
+
+    if not row:
         cur.close()
         conn.close()
         return None
 
-    pid = pid_row[0]
+    correct_option = row[0]
+    correct = (correct_option == choice)
 
-    # 3. Identify whether user is user1 or user2
-    cur.execute(
-        """
-        SELECT user1, user2
-        FROM "Pair"
-        WHERE pair_id = %s;
-        """,
-        (pid,),
-    )
-    pair_row = cur.fetchone()
-    if not pair_row:
-        cur.close()
-        conn.close()
-        return None
-
-    user1, user2 = pair_row
-
-    # 4. Mark attempt — NOT correctness
+    # 4. Mark attempt flag
     if user_id == user1:
-        cur.execute(
-            'UPDATE "Pair" SET user1_answered = TRUE WHERE pair_id = %s;',
-            (pid,),
-        )
-    elif user_id == user2:
-        cur.execute(
-            'UPDATE "Pair" SET user2_answered = TRUE WHERE pair_id = %s;',
-            (pid,),
-        )
+        cur.execute("""UPDATE "Pair" SET user1_answered = TRUE WHERE pair_id=%s;""", (pair_id,))
     else:
-        # user not in this pair
-        cur.close()
-        conn.close()
-        return None
+        cur.execute("""UPDATE "Pair" SET user2_answered = TRUE WHERE pair_id=%s;""", (pair_id,))
 
     conn.commit()
     cur.close()
     conn.close()
 
-    return correct
+    return {"correct": correct}
