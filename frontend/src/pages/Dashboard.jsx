@@ -7,50 +7,48 @@ export default function Dashboard() {
   const nav = useNavigate();
 
   const [user, setUser] = useState(null);
-  const [match, setMatch] = useState(null);
+  const [pairBasic, setPairBasic] = useState(null);
+  const [pairFull, setPairFull] = useState(null);
   const [loadingUser, setLoadingUser] = useState(true);
   const [loadingPair, setLoadingPair] = useState(false);
   const [error, setError] = useState("");
   const [pairError, setPairError] = useState("");
 
   useEffect(() => {
-    async function fetchUser() {
-      setLoadingUser(true);
-
+    async function loadEverything() {
       const id = localStorage.getItem("user_id");
       if (!id) {
-        setError("No user ID found. Please sign in again.");
-        setLoadingUser(false);
+        setError("No user ID found. Please log in again.");
         return;
       }
 
+      // Load profile
       try {
         const res = await api.get(`/user/${id}`);
         setUser(res.data);
+      } catch {
+        setError("Failed to load profile.");
+      }
+
+      // Load pair status
+      try {
+        const res = await api.get(`/pair/status/${id}`);
+
+        if (res.data.pair_id !== null) {
+          setPairBasic(res.data);
+
+          // Now fetch full partner info
+          const mate = await api.get(`/pair/mate/${id}`);
+          setPairFull(mate.data);
+        }
       } catch (err) {
-        console.error(err);
-        setError("Could not load profile. Backend offline?");
+        console.error("Pair status error:", err);
       }
 
       setLoadingUser(false);
     }
 
-    async function fetchPairStatus() {
-      const id = localStorage.getItem("user_id");
-      if (!id) return;
-
-      try {
-        const res = await api.get(`/pair/status/${id}`);
-        if (res.data.pair_id !== null) {
-          setMatch(res.data);
-        }
-      } catch (err) {
-        console.error("Pair status error:", err);
-      }
-    }
-
-    fetchUser();
-    fetchPairStatus();
+    loadEverything();
   }, []);
 
   async function handlePair() {
@@ -61,10 +59,13 @@ export default function Dashboard() {
 
     try {
       const res = await api.post("/pair", { user_id: id });
-      setMatch(res.data);
+      setPairBasic(res.data);
+
+      // fetch partner details now
+      const mate = await api.get(`/pair/mate/${id}`);
+      setPairFull(mate.data);
     } catch (err) {
-      console.error(err);
-      setPairError("Pairing failed. Try again later.");
+      setPairError("Pairing failed.");
     }
 
     setLoadingPair(false);
@@ -73,12 +74,11 @@ export default function Dashboard() {
   return (
     <>
       <Navbar />
-
       <div style={styles.container}>
         <h2>Your Dashboard</h2>
 
         {loadingUser ? (
-          <p>Loading profile...</p>
+          <p>Loading...</p>
         ) : error ? (
           <p style={{ color: "red" }}>{error}</p>
         ) : (
@@ -88,23 +88,16 @@ export default function Dashboard() {
             <p><strong>Courses:</strong> {user.courses.join(", ")}</p>
             <p><strong>Interests:</strong> {user.interests.join(", ")}</p>
 
-            {/* Unpaired → show Pair Me */}
-            {!match && (
-              <button
-                style={styles.btn}
-                onClick={handlePair}
-                disabled={loadingPair}
-              >
+            {/* If unpaired → show Pair Me */}
+            {!pairBasic && (
+              <button style={styles.btn} onClick={handlePair} disabled={loadingPair}>
                 {loadingPair ? "Pairing..." : "Pair Me"}
               </button>
             )}
 
-            {/* Paired → show Today's Task */}
-            {match && (
-              <button
-                style={styles.taskBtn}
-                onClick={() => nav("/solve")}
-              >
+            {/* If paired → show task button */}
+            {pairBasic && (
+              <button style={styles.taskBtn} onClick={() => nav("/solve")}>
                 Today's Task
               </button>
             )}
@@ -113,12 +106,20 @@ export default function Dashboard() {
           </div>
         )}
 
-        {match && (
+        {/* SHOW PARTNER INFORMATION IF AVAILABLE */}
+        {pairFull && (
           <div style={styles.matchCard}>
-            <h3>🎉 You’ve been paired!</h3>
-            <p><strong>Partner:</strong> {match.partner_username}</p>
-            <p><strong>Courses:</strong> {match.partner_courses.join(", ")}</p>
-            <p><strong>Interests:</strong> {match.partner_interests.join(", ")}</p>
+            <h3>🎉 You’re paired!</h3>
+
+            <p><strong>Partner:</strong> {pairFull.partner_username}</p>
+            <p>
+              <strong>Courses:</strong>{" "}
+              {pairFull.partner_courses.join(", ")}
+            </p>
+            <p>
+              <strong>Interests:</strong>{" "}
+              {pairFull.partner_interests.join(", ")}
+            </p>
           </div>
         )}
       </div>
@@ -128,10 +129,29 @@ export default function Dashboard() {
 
 const styles = {
   container: { width: "70%", margin: "2rem auto", textAlign: "center" },
-  card: { background: "#f5f5f5", padding: "1.5rem", borderRadius: "12px", marginBottom: "1.5rem" },
-  btn: { background: "#3b82f6", color: "#fff", padding: "0.75rem", borderRadius: "10px",
-         border: "none", cursor: "pointer", marginTop: "1rem" },
-  taskBtn: { background: "#10b981", color: "#fff", padding: "0.75rem",
-             borderRadius: "10px", border: "none", cursor: "pointer", marginTop: "1rem" },
-  matchCard: { background: "#d1fae5", padding: "1.5rem", borderRadius: "12px", marginTop: "2rem" }
+  card: { background: "#f5f5f5", padding: "1.5rem", borderRadius: "12px" },
+  btn: {
+    marginTop: "1rem",
+    padding: "0.75rem 1.25rem",
+    background: "#3b82f6",
+    color: "#fff",
+    border: "none",
+    borderRadius: "10px",
+    cursor: "pointer"
+  },
+  taskBtn: {
+    marginTop: "1rem",
+    padding: "0.75rem 1.25rem",
+    background: "#10b981",
+    color: "#fff",
+    border: "none",
+    borderRadius: "10px",
+    cursor: "pointer"
+  },
+  matchCard: {
+    background: "#d1fae5",
+    padding: "1.5rem",
+    borderRadius: "12px",
+    marginTop: "2rem"
+  }
 };
