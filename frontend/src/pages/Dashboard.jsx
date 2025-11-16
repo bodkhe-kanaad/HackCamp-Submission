@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import Navbar from "../components/Navbar";
 import { api } from "../services/api";
 import { useNavigate } from "react-router-dom";
+import "./css/dashboard.css";
 
 export default function Dashboard() {
   const nav = useNavigate();
@@ -46,87 +47,78 @@ export default function Dashboard() {
 
   // Unpair
   const handleUnpair = async () => {
-    await api.post("/unpair", { user_id: userId });
-    setPartner(null);
+    try {
+      await api.post("/unpair", { user_id: userId });
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setPartner(null);
+    }
   };
 
-  if (loading) return <div>Loading dashboard...</div>;
+  if (loading) return <div className="dash-loading">Loading dashboard...</div>;
 
   return (
     <>
       <Navbar center="Dashboard" />
 
-      <div style={styles.container}>
-        {/* Duo Status */}
-        <div style={styles.card}>
-          <h3>Your Study Buddy</h3>
+      <main className="dash-root">
+        <aside className="dash-hero">
+          <h1 className="dash-hero-title">Welcome to PairUp</h1>
+          <p className="dash-hero-sub">Pair. Learn. Streak.</p>
+        </aside>
 
-          {partner ? (
-            <>
-              <p>You are paired with user #{partner}</p>
-              <button style={styles.unpairBtn} onClick={handleUnpair}>
-                Unpair
-              </button>
-            </>
-          ) : (
-            <>
-              <p>You don't have a study buddy yet.</p>
-              <button style={styles.btn} onClick={handlePair}>
-                Pair Me
-              </button>
-            </>
-          )}
-        </div>
+        <section className="dash-panel">
+          <div className="card duo-card">
+            <h3 className="card-title">Your Study Buddy</h3>
 
-        {/* Today's Challenge */}
-        <div style={styles.card}>
-          <h3>Today's Challenge</h3>
-          <button
-            style={styles.btn}
-            onClick={() => nav(`/solve/${userId}`)}
-          >
-            Load Today's Question
-          </button>
-        </div>
-      </div>
+            {partner ? (
+              <div className="partner-wrap">
+                <div className="partner-info">
+                  <div className="avatar">{String(partner)[0]}</div>
+                  <div>
+                    <div className="partner-name">User #{partner}</div>
+                    <div className="partner-meta">Ready to code together</div>
+                  </div>
+                </div>
+
+                <div className="card-actions">
+                  <button className="btn btn-unpair" onClick={handleUnpair}>
+                    Unpair
+                  </button>
+                  <button
+                    className="btn btn-chat"
+                    onClick={() => nav(`/solve/${partner}`)}
+                  >
+                    View Partner's Problem
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="no-partner">
+                <p className="muted">You don't have a study buddy yet.</p>
+                <button className="btn btn-primary" onClick={handlePair}>
+                  Pair Me
+                </button>
+              </div>
+            )}
+          </div>
+
+          <div className="card challenge-card">
+            <h3 className="card-title">Today's Challenge</h3>
+            <p className="muted">A curated problem to practice with your buddy.</p>
+            <div className="card-actions">
+              <button
+                className="btn btn-gradient"
+                onClick={() => nav(`/solve/${userId}`)}
+              >
+                Load Today's Question
+              </button>
+            </div>
+          </div>
+        </section>
+      </main>
     </>
   );
 }
 
-const styles = {
-  container: {
-    width: "90%",
-    maxWidth: "600px",
-    margin: "2rem auto",
-    display: "flex",
-    flexDirection: "column",
-    gap: "20px"
-  },
-  card: {
-    padding: "1.5rem",
-    borderRadius: "10px",
-    background: "#f7f7f7",
-    textAlign: "center",
-    boxShadow: "0 2px 6px rgba(0,0,0,0.1)"
-  },
-  btn: {
-    marginTop: "1rem",
-    padding: "0.75rem",
-    width: "100%",
-    background: "#3b82f6",
-    color: "#fff",
-    border: "none",
-    borderRadius: "8px",
-    cursor: "pointer"
-  },
-  unpairBtn: {
-    marginTop: "1rem",
-    padding: "0.75rem",
-    width: "100%",
-    background: "#ef4444",
-    color: "#fff",
-    border: "none",
-    borderRadius: "8px",
-    cursor: "pointer"
-  }
-};
