@@ -1,5 +1,4 @@
 
-
 // this page basically interacts with flask 
 // assuming backend returns a JSON like :
 // {
@@ -10,37 +9,38 @@
 //   }
   
 
-
 import { useEffect, useState } from "react";
 import { api } from "../services/api";
 import { useNavigate } from "react-router-dom";
+import Navbar from "../components/Navbar";
 
 export default function Matching() {
   const [loading, setLoading] = useState(true);
   const [match, setMatch] = useState(null);
-  const navigate = useNavigate();
+  const nav = useNavigate();
 
   useEffect(() => {
-    async function findMatch() {
+    async function find() {
       const res = await api.post("/match");
       setMatch(res.data.match);
       setLoading(false);
     }
-
-    findMatch();
+    find();
   }, []);
 
   if (loading) return <p>Finding a study buddy...</p>;
 
   return (
-    <div>
-      <h2>You got matched!</h2>
-      <p>Partner: {match.name}</p>
-      <p>Reason: {match.reason}</p>
+    <>
+      <Navbar />
 
-      <button onClick={() => navigate("/challenge")}>
-        Start Today’s Challenge
-      </button>
-    </div>
+      <div style={{ padding: "2rem", textAlign: "center" }}>
+        <h2>You got matched!</h2>
+        <p>Partner: {match.name}</p>
+        <p>Reason: {match.reason}</p>
+
+        <button onClick={() => nav("/dashboard")}>Continue</button>
+      </div>
+    </>
   );
 }
